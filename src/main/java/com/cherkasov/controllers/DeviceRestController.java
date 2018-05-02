@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/device")
+@RequestMapping("/api/v1/device/{id}")
 public class DeviceRestController {
 }
