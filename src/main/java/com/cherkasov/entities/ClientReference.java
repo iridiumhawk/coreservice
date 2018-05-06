@@ -32,7 +32,6 @@ import lombok.ToString;
         @NamedQuery(name = "Store.removeById", query = "DELETE FROM ClientReference entity WHERE entity.id=:id"),
         @NamedQuery(name = "Store.getByHost", query = "SELECT entity FROM ClientReference entity WHERE entity.host = :host")})
 @JsonIgnoreProperties({"login", "password"})
-@Deprecated
 public class ClientReference implements Serializable {
 
     private static final long serialVersionUID = 1L;

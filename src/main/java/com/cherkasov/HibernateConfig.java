@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource(value = {"classpath:db.properties"})
 public class HibernateConfig {
 
-  private static final String PACKAGE_FOR_ENTITY = "com.cherkasov";
+  private static final String PACKAGE_FOR_ENTITY = "com.cherkasov.entities";
 
   @Autowired
   private Environment environment;
