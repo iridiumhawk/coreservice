@@ -24,28 +24,25 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/register")
+@RequestMapping("/api/v1/register")
 public class RegisterController {
 
     @Autowired
     private DataRepository repository;
-
-//    @Autowired
-//    private RestOperations restTemplate;
 
     @RequestMapping("/get/new")
     public ClientReference getNew() {
 
         return new ClientReference();
     }
-
+/*
     @RequestMapping("/user/new")
     public User getNewUser() {
 
         final User user = new User();
         repository.saveUser(user);
         return user;
-    }
+    }*/
 
     @RequestMapping("/get/all")
     public List<ClientReference> getAll() {
@@ -154,18 +151,18 @@ public class RegisterController {
         }};
     }
 
-    @Deprecated
+/*    @Deprecated
     private ClientHttpRequestFactory getClientHttpRequestFactory(int timeout) {
 
         HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
         clientHttpRequestFactory.setConnectTimeout(timeout);
         return clientHttpRequestFactory;
-    }
+    }*/
 
     //    @Bean
 //    @Autowired
-    public RestOperations rest(RestTemplateBuilder restTemplateBuilder) {
+/*    public RestOperations rest(RestTemplateBuilder restTemplateBuilder) {
 
         return restTemplateBuilder.basicAuthorization(Configuration.clientLogin, Configuration.clientPassword).setConnectTimeout(5000).build();
-    }
+    }*/
 }

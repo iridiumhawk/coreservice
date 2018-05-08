@@ -1,12 +1,14 @@
 package com.cherkasov.repositories;
 
 import com.cherkasov.entities.ClientReference;
+import com.cherkasov.entities.Credential;
 import com.cherkasov.entities.User;
 import com.cherkasov.exceptions.DataBaseException;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -26,7 +28,7 @@ public class DataRepository {
 
   @Transactional
   public ClientReference saveEntity(ClientReference data) {
-    Objects.requireNonNull("Cannot store entity because it is null");
+    Objects.requireNonNull(data, "Cannot store entity because it is null");
 //    data.setId(null);
     try {
     if (data.getId() == null) {
@@ -42,6 +44,40 @@ public class DataRepository {
       log.error("EntityManager instance is not set");
       throw new DataBaseException(e.getMessage());
     }
+  }
+
+  @Transactional
+  public Credential saveCredential(Credential data) {
+    Objects.requireNonNull(data, "Cannot store entity because it is null");
+//    data.setId(null);
+    try {
+    if (data.getId() == null) {
+      log.trace("Persist request for alias: {}", data.getEntityId());
+      em.persist(data);
+      return data;
+    } else {
+      log.trace("Update request for alias: {}", data.getEntityId());
+      return em.merge(data);
+    }
+
+    } catch (NullPointerException e) {
+      log.error("EntityManager instance is not set");
+      throw new DataBaseException(e.getMessage());
+    }
+  }
+
+  public List<Credential> getByEntityId(String id) {
+    log.trace("Get entity by id={}", id);
+    List<Credential> credential;
+    try {
+      credential = em.createNamedQuery("Credential.getById", Credential.class)
+              .setParameter("apikey", id)
+              .getResultList();
+//              .getSingleResult();
+    } catch (NoResultException | NonUniqueResultException e) {
+      return null;
+    }
+    return credential;
   }
 
 
