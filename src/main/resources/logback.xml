@@ -17,7 +17,7 @@
   <Logger name="org.hibernate" level="info"/>
   <Logger name="org.springframework" level="info"/>
   <Logger name="com.zaxxer.hikari" level="info"/>
-  <Logger name="com.cherkasov" level="debug"/>
+  <Logger name="com.cherkasov" level="trace"/>
   <Logger name="org.mongodb.driver.cluster" level="info"/>
 
   <root level="debug">
