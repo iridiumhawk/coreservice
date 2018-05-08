@@ -12,6 +12,7 @@ public class WebController {
   @GetMapping("/devices")
   public String devices() {
     log.trace("Access to /devices");
+    // TODO: 08.05.2018 set cookie with controller id
     return "/devices";
   }
 
