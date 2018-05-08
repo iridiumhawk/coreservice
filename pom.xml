@@ -53,6 +53,46 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+      <!-- Spring Security -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+      </dependency>
+
+      <!-- optional, it brings userful tags to display spring security stuff -->
+      <dependency>
+        <groupId>org.thymeleaf.extras</groupId>
+        <artifactId>thymeleaf-extras-springsecurity4</artifactId>
+      </dependency>
+
+      <!--restart server on changes in code-->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <!--<optional>true</optional>-->
+        <scope>runtime</scope>
+      </dependency>
+
+      <!-- Optional, for bootstrap -->
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>bootstrap</artifactId>
+        <version>3.3.7</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery</artifactId>
+        <version>3.3.1</version>
+      </dependency>
+
+
+
         <!--db-->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -125,7 +165,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
 
 
 </project>
