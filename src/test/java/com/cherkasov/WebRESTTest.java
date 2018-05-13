@@ -38,7 +38,7 @@ public class WebRESTTest {
 
     final ClientReference entity = new ClientReference();
     entity.setId(1);
-    when(repository.getById(any())).thenReturn(entity);
+    when(repository.getClientReferenceById(any())).thenReturn(entity);
     this.mockMvc.perform(get("/get/1")).andDo(print()).andExpect(status().isOk())
         .andExpect(content().
             string(containsString("1")));
