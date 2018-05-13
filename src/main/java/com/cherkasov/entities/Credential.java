@@ -1,19 +1,19 @@
 package com.cherkasov.entities;
 
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * Entity for store credential in database.
  */
-@NamedQuery(name = "Credential.getById", query = "SELECT cred FROM Credential cred WHERE cred.entityId = :apikey")
+@NamedQuery(name = "Credential.getById", query = "SELECT cred FROM Credential cred WHERE cred.apiKey = :apikey")
 @ToString
 @Getter
 @Setter
@@ -27,13 +27,20 @@ public class Credential implements Serializable {
     @SequenceGenerator(name = "globalSequence", sequenceName = "GLOBAL_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "globalSequence")
     private Integer id;
-    @Column(name = "entity_id")
-    @JsonProperty("entityid")
-    private String entityId;
+    @Column(name = "api_key")
+    @JsonProperty("apikey")
+    private String apiKey;
     private String login;
     private String password;
+    private LocalDateTime registrationTime;
+
+    @JsonSetter("registrationtime")
+    public void setRegistrationTime(Object dateTimeSave) {
+
+        this.registrationTime = LocalDateTime.now();
+    }
 
     public Credential() {
-
+        this.registrationTime = LocalDateTime.now();
     }
 }
