@@ -13,10 +13,11 @@ import java.util.List;
 @Repository
 @Slf4j
 public class DeviceDAOImpl implements DeviceDAO {
+
     @Autowired
     private MongoOperations operations;
 
-    private static final String DEVICE_COLLECTION = "devices";
+//    private static final String DEVICE_COLLECTION = "devices";
 
     public DeviceDAOImpl(MongoOperations operations) {
 
@@ -29,39 +30,46 @@ public class DeviceDAOImpl implements DeviceDAO {
 
 
     @Override
-    public void insert(Device device) {
-    this.operations.insert(device, DEVICE_COLLECTION);
+    public void insert(Device device, String collection) {
+    this.operations.insert(device, collection);
     }
 
     @Override
-    public void update(Device device) {
-        this.operations.save(device, DEVICE_COLLECTION);
+    public void update(Device device, String collection) {
+        this.operations.save(device, collection);
     }
 
     @Override
-    public Device findByName(String device) {
+    public Device findByName(String device, String collection) {
 
         Query query = new Query(Criteria.where("name").is(device));
-        return this.operations.findOne(query, Device.class, DEVICE_COLLECTION);
+        return this.operations.findOne(query, Device.class, collection);
     }
 
     @Override
-    public int deleteByName(String device) {
+    public List<Device> getAll(String collection) {
+
+        return this.operations.findAll(Device.class, collection);
+    }
+
+
+    @Override
+    public int deleteByName(String device, String collection) {
         Query query = new Query(Criteria.where("name").is(device));
-        WriteResult result = this.operations.remove(query, Device.class, DEVICE_COLLECTION);
+        WriteResult result = this.operations.remove(query, Device.class, collection);
         return result.getN();
     }
 
     @Override
-    public void insertAll(List<Device> devices) {
-        this.operations.insert(devices, DEVICE_COLLECTION);
+    public void insertAll(List<Device> devices, String collection) {
+        this.operations.insert(devices, collection);
     }
 
     @Override
-    public boolean dropCollectionIfExist() {
+    public boolean dropCollectionIfExist(String collection) {
 
-        if (operations.collectionExists(DEVICE_COLLECTION)) {
-            operations.dropCollection(DEVICE_COLLECTION);
+        if (operations.collectionExists(collection)) {
+            operations.dropCollection(collection);
             log.info("Collection dropped");
             return true;
         }

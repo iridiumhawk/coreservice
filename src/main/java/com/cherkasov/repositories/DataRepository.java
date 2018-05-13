@@ -46,40 +46,6 @@ public class DataRepository {
     }
   }
 
-  @Transactional
-  public Credential saveCredential(Credential data) {
-    Objects.requireNonNull(data, "Cannot store entity because it is null");
-//    data.setId(null);
-    try {
-    if (data.getId() == null) {
-      log.trace("Persist request for alias: {}", data.getEntityId());
-      em.persist(data);
-      return data;
-    } else {
-      log.trace("Update request for alias: {}", data.getEntityId());
-      return em.merge(data);
-    }
-
-    } catch (NullPointerException e) {
-      log.error("EntityManager instance is not set");
-      throw new DataBaseException(e.getMessage());
-    }
-  }
-
-  public List<Credential> getByEntityId(String id) {
-    log.trace("Get entity by id={}", id);
-    List<Credential> credential;
-    try {
-      credential = em.createNamedQuery("Credential.getById", Credential.class)
-              .setParameter("apikey", id)
-              .getResultList();
-//              .getSingleResult();
-    } catch (NoResultException | NonUniqueResultException e) {
-      return null;
-    }
-    return credential;
-  }
-
 
   /**
    * Revert null object into "null" string
@@ -102,17 +68,80 @@ public class DataRepository {
   /**
    * Only for test
    */
-  public ClientReference getById(Integer id) {
+  public ClientReference getClientReferenceById(Integer id) {
     log.trace("Get entity by id={}", id);
     return em.find(ClientReference.class, id);
+  }
+
+  public List<ClientReference> getClientReferenceByApiKey(String id) {
+    log.trace("Get entity by apikey={}", id);
+    List<ClientReference> clientReferenceList;
+    try {
+      clientReferenceList = em.createNamedQuery("Store.getByApi", ClientReference.class)
+              .setParameter("apikey", id)
+              .getResultList();
+    } catch (NoResultException e) {
+      log.error("Cannot get client reference");
+      return null;
+    }
+    log.trace("Client references:\n{}",clientReferenceList);
+    return clientReferenceList;
+  }
+
+  public ClientReference getClientReferenceByHost(String host) {
+    final ClientReference client;
+    try {
+      client = em.createNamedQuery("Store.getByHost", ClientReference.class)
+              .setParameter("host", host)
+              .getSingleResult();
+    } catch (NoResultException e) {
+      return null;
+    }
+    return client;
+  }
+
+
+  @Transactional
+  public boolean removeClientReferenceById(Integer id) {
+    log.trace("Trying to remove entity from database with id={}", id);
+    return em.createNamedQuery("Store.removeById").setParameter("id", id).executeUpdate() != 0;
   }
 
 
 
   @Transactional
-  public boolean removeById(Integer id) {
-    log.trace("Trying to remove entity from database with id={}", id);
-    return em.createNamedQuery("Store.removeById").setParameter("id", id).executeUpdate() != 0;
+  public Credential saveCredential(Credential data) {
+    Objects.requireNonNull(data, "Cannot store entity because it is null");
+//    data.setId(null);
+    try {
+      if (data.getId() == null) {
+        log.trace("Persist request for alias: {}", data.getApiKey());
+        em.persist(data);
+        return data;
+      } else {
+        log.trace("Update request for alias: {}", data.getApiKey());
+        return em.merge(data);
+      }
+
+    } catch (NullPointerException e) {
+      log.error("EntityManager instance is not set");
+      throw new DataBaseException(e.getMessage());
+    }
+  }
+
+  public List<Credential> getCredentialByApiKey(String id) {
+    log.trace("Get entity by id={}", id);
+    List<Credential> credential;
+    try {
+      credential = em.createNamedQuery("Credential.getById", Credential.class)
+              .setParameter("apikey", id)
+              .getResultList();
+//              .getSingleResult();
+    } catch (NoResultException | NonUniqueResultException e) {
+      log.error("Cannot get credential");
+      return null;
+    }
+    return credential;
   }
 
 
@@ -122,7 +151,7 @@ public class DataRepository {
     return user;
   }
 
-  public User getByApiKey(String apiKey) {
+  public User getUserByApiKey(String apiKey) {
     final User user;
     try {
       user = em.createNamedQuery("User.getByAPI", User.class)
@@ -134,15 +163,5 @@ public class DataRepository {
     return user;
   }
 
-  public ClientReference getByHost(String host) {
-    final ClientReference client;
-    try {
-      client = em.createNamedQuery("Store.getByHost", ClientReference.class)
-          .setParameter("host", host)
-          .getSingleResult();
-    } catch (NoResultException e) {
-      return null;
-    }
-    return client;
-  }
+
 }

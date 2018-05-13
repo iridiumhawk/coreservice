@@ -5,16 +5,18 @@ import com.cherkasov.entities.Device;
 import java.util.List;
 
 public interface DeviceDAO {
-    void insert(Device device);
+    void insert(Device device, String collection);
 
-    void update(Device device);
+    void update(Device device, String collection);
 
-    Device findByName(String device);
+    Device findByName(String device, String collection);
 
-    int deleteByName(String device);
+    List<Device> getAll(String collection);
 
-    void insertAll(List<Device> devices);
+    int deleteByName(String device, String collection);
 
-    boolean dropCollectionIfExist();
+    void insertAll(List<Device> devices, String collection);
+
+    boolean dropCollectionIfExist(String collection);
 
 }
