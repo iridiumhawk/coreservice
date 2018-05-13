@@ -62,7 +62,7 @@ public class PatternController {
     @RequestMapping("/get/{id}")
     public ClientReference getById(@PathVariable("id") int entityId) {
 
-        return repository.getById(entityId);
+        return repository.getClientReferenceById(entityId);
     }
 
     @RequestMapping("/remove/{id}")
@@ -98,7 +98,7 @@ public class PatternController {
 
         startHostRequest(host);
 
-        ClientReference clientReference = repository.getByHost(host);
+        ClientReference clientReference = repository.getClientReferenceByHost(host);
         if (clientReference == null) {
             entity.setId(null);
 //            entity.setApiKey(getApiKeyFromClient(host));
@@ -120,7 +120,7 @@ public class PatternController {
                 } catch (InterruptedException e) {
                     //nothing
                 }
-                ClientReference clientReference = repository.getByHost(host);
+                ClientReference clientReference = repository.getClientReferenceByHost(host);
                 clientReference.setApiKey(getApiKeyFromClient(host));
                 repository.saveEntity(clientReference);
             }

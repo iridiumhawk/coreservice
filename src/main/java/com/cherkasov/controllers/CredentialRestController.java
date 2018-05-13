@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/credential")
-public class CredentialRestController extends RootController {
+public class CredentialRestController {
 
     @Autowired
     private DataRepository repository;
@@ -23,7 +23,7 @@ public class CredentialRestController extends RootController {
     public ResponseEntity<Credential> saveOne(@RequestBody Credential entity) {
         log.trace("Save credential={}", entity);
 
-        List<Credential> credential = repository.getByEntityId(entity.getEntityId());
+        List<Credential> credential = repository.getCredentialByApiKey(entity.getApiKey());
         Credential credentialStored;
         if (credential == null || credential.isEmpty()) {
             entity.setId(null);
@@ -38,8 +38,8 @@ public class CredentialRestController extends RootController {
 
 
     @RequestMapping("/get/{id}")
-    public List<Credential> getById(@PathVariable("id") String entityId) {
-    log.trace("Get credential by entityId={}", entityId);
-        return repository.getByEntityId(entityId);
+    public List<Credential> getById(@PathVariable("id") String apiKey) {
+    log.trace("Get credential by apiKey={}", apiKey);
+        return repository.getCredentialByApiKey(apiKey);
     }
 }

@@ -2,21 +2,18 @@ package com.cherkasov.controllers;
 
 import com.cherkasov.Configuration;
 import com.cherkasov.entities.ClientReference;
-import com.cherkasov.entities.User;
 import com.cherkasov.repositories.DataRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.domain.DomainEvents;
 import org.springframework.http.*;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -25,7 +22,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/register")
-public class RegisterController {
+public class RegisterRestController {
 
     @Autowired
     private DataRepository repository;
@@ -35,14 +32,6 @@ public class RegisterController {
 
         return new ClientReference();
     }
-/*
-    @RequestMapping("/user/new")
-    public User getNewUser() {
-
-        final User user = new User();
-        repository.saveUser(user);
-        return user;
-    }*/
 
     @RequestMapping("/get/all")
     public List<ClientReference> getAll() {
@@ -50,12 +39,27 @@ public class RegisterController {
         return repository.getAllEntity();
     }
 
-    @RequestMapping("/get/{id}")
+    @RequestMapping("/get/id/{id}")
     public ClientReference getById(@PathVariable("id") int entityId) {
-
-        return repository.getById(entityId);
+        log.trace("entityId={}", entityId);
+        return repository.getClientReferenceById(entityId);
     }
 
+    @RequestMapping("/get/key/{id}")
+    public List<ClientReference> getByEntityId(@PathVariable("id") String apiKey) {
+
+        log.trace("Api key={}", apiKey);
+        return repository.getClientReferenceByApiKey(apiKey);
+    }
+
+    /**
+     * Remove entity by id with authorisation (api-key)
+     *
+     * @param entityId
+     * @param httpHeaders
+     * @return
+     */
+    @Deprecated
     @RequestMapping("/remove/{id}")
     public ResponseEntity<Boolean> removeById(@PathVariable("id") int entityId, @RequestHeader HttpHeaders httpHeaders) {
 
@@ -71,7 +75,7 @@ public class RegisterController {
     }*/
         return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
     }
-
+/*
     @RequestMapping(value = "/save/all", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveAll(@RequestBody List<ClientReference> entities) {
 
@@ -79,77 +83,51 @@ public class RegisterController {
             repository.saveEntity(entity);
         }
         return new ResponseEntity<>(true, HttpStatus.OK);
-    }
+    }*/
 
     @RequestMapping(value = "/save/one", method = RequestMethod.POST)
-    public ResponseEntity<ClientReference> saveOne(@RequestBody ClientReference entity) {
+    public ResponseEntity<ClientReference> saveOne(@RequestBody ClientReference entity, HttpServletRequest request) {
         // TODO: 22.04.2018 check for apikey - if it already exist then update record with this apikey
+        log.trace("Client entity: {}", entity);
 
-        String host = entity.getHost();
+        String host = getClientIp(request);
+        String apiKey = entity.getApiKey();
+        log.trace("Client host: {}", host);
 
-        startHostRequest(host);
-
-        ClientReference clientReference = repository.getByHost(host);
-        if (clientReference == null) {
+        List<ClientReference> clientReference = repository.getClientReferenceByApiKey(apiKey);
+        if (clientReference == null || clientReference.isEmpty()) {
             entity.setId(null);
-//            entity.setApiKey(getApiKeyFromClient(host));
+            entity.setHost(host);
             return new ResponseEntity<>(repository.saveEntity(entity), HttpStatus.OK);
         }
 
-//        clientReference.setApiKey(getApiKeyFromClient(host));
-        return new ResponseEntity<>(repository.saveEntity(clientReference), HttpStatus.OK);
-    }
-
-    private void startHostRequest(String host) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    log.debug("sleep before host request");
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    //nothing
-                }
-                ClientReference clientReference = repository.getByHost(host);
-                clientReference.setApiKey(getApiKeyFromClient(host));
-                repository.saveEntity(clientReference);
+        if (clientReference.size() > 1) {
+            for (ClientReference reference : clientReference) {
+                repository.removeClientReferenceById(reference.getId());
             }
-        }).start();
-    }
+            return new ResponseEntity<>(repository.saveEntity(entity), HttpStatus.OK);
 
-    private String getApiKeyFromClient(String host) {
-
-        if (host == null) {
-            return "null";
+        } else {
+            clientReference.get(0).setHost(host);
+            return new ResponseEntity<>(repository.saveEntity(clientReference.get(0)), HttpStatus.OK);
         }
-        RestTemplate restTemplate = new RestTemplate();
-        String clientURL = Configuration.clientURL.replace("*", host);
-        ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(createHeaders(Configuration.clientLogin, Configuration.clientPassword)), String.class);
 
-//                restTemplate.getForEntity(clientURL, String.class);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = null;
-        try {
-            root = mapper.readTree(response.getBody());
-        } catch (IOException e) {
-            log.error("Cannot parse json");
-            return null;
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+
+        String remoteAddr = "";
+
+        if (request != null) {
+            remoteAddr = request.getHeader("X-FORWARDED-FOR");
+            if (remoteAddr == null || "".equals(remoteAddr)) {
+                remoteAddr = request.getRemoteAddr();
+            }
         }
-        JsonNode uuid = root.path("value");
 
-        return uuid.asText();
+        return remoteAddr;
     }
 
-    private HttpHeaders createHeaders(String username, String password) {
-
-        return new HttpHeaders() {{
-            String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("UTF-8")));
-            String authHeader = "Basic " + new String(encodedAuth);
-            set("Authorization", authHeader);
-        }};
-    }
 
 /*    @Deprecated
     private ClientHttpRequestFactory getClientHttpRequestFactory(int timeout) {
