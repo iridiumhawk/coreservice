@@ -32,7 +32,7 @@ public class DataRestController {
     private DataRepository repository;
 
 
-    @RequestMapping("/get/all/{device}")
+    @RequestMapping(value = "/get/all/{device}", method = RequestMethod.GET)
     public List<TimeSeriesData> getAllByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
@@ -40,7 +40,7 @@ public class DataRestController {
 
     }
 
-    @RequestMapping("/get/last/{device}")
+    @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
     public TimeSeriesData getLastByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
@@ -48,7 +48,7 @@ public class DataRestController {
         return dataDAO.findLastByDeviceId(deviceId, controllerId);
     }
 
-    @RequestMapping("/get/fresh/{device}")
+    @RequestMapping(value = "/get/fresh/{device}", method = RequestMethod.GET)
     public String getFreshLastByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);

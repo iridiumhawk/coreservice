@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,7 +37,7 @@ public class ManageRestController {
      * @param command
      * @return
      */
-    @RequestMapping("/set/{device}/{command}")
+    @RequestMapping(value = "/set/{device}/{command}", method = RequestMethod.PUT)
     public String sendCommandToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("command") String command) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
@@ -53,7 +54,8 @@ public class ManageRestController {
      * @param command
      * @return
      */
-    @RequestMapping("/set/{device}/{commandclass}/{value}")
+    // TODO: 16.05.2018 may be , method = RequestMethod.GET?
+    @RequestMapping(value = "/set/{device}/{commandclass}/{value}", method = RequestMethod.PUT)
     public String sendParameterToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("commandclass") String command) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);

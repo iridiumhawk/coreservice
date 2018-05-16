@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class DeviceRestController {
     private DeviceDAO deviceDAO;
 
 
-    @RequestMapping("/get/all")
+    @RequestMapping(value = "/get/all", method = RequestMethod.GET)
     public List<Device> getAllDevices(@PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
@@ -27,7 +28,7 @@ public class DeviceRestController {
         return deviceDAO.getAll(controllerId);
     }
 
-    @RequestMapping("/get/{device}")
+    @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)
     public Device getOneDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);

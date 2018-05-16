@@ -37,7 +37,7 @@ public class CredentialRestController {
     }
 
 
-    @RequestMapping("/get/{id}")
+    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     public List<Credential> getById(@PathVariable("id") String apiKey) {
     log.trace("Get credential by apiKey={}", apiKey);
         return repository.getCredentialByApiKey(apiKey);

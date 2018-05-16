@@ -27,25 +27,25 @@ public class RegisterRestController {
     @Autowired
     private DataRepository repository;
 
-    @RequestMapping("/get/new")
+    @RequestMapping(value = "/get/new", method = RequestMethod.GET)
     public ClientReference getNew() {
 
         return new ClientReference();
     }
 
-    @RequestMapping("/get/all")
+    @RequestMapping(value = "/get/all", method = RequestMethod.GET)
     public List<ClientReference> getAll() {
 
         return repository.getAllEntity();
     }
 
-    @RequestMapping("/get/id/{id}")
+    @RequestMapping(value = "/get/id/{id}", method = RequestMethod.GET)
     public ClientReference getById(@PathVariable("id") int entityId) {
         log.trace("entityId={}", entityId);
         return repository.getClientReferenceById(entityId);
     }
 
-    @RequestMapping("/get/key/{id}")
+    @RequestMapping(value = "/get/key/{id}", method = RequestMethod.GET)
     public List<ClientReference> getByEntityId(@PathVariable("id") String apiKey) {
 
         log.trace("Api key={}", apiKey);
@@ -60,7 +60,7 @@ public class RegisterRestController {
      * @return
      */
     @Deprecated
-    @RequestMapping("/remove/{id}")
+    @RequestMapping(value = "/remove/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> removeById(@PathVariable("id") int entityId, @RequestHeader HttpHeaders httpHeaders) {
 
         final Map<String, String> singleValueMap = httpHeaders.toSingleValueMap();
