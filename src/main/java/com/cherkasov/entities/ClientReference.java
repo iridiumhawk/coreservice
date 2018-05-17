@@ -51,7 +51,7 @@ public class ClientReference implements Serializable {
     @JsonProperty("apikey")
     private String apiKey;
     @Column(name = "registration_time")
-    private LocalDateTime registrationTime;
+    private LocalDateTime registrationTime = LocalDateTime.now();
 
     @JsonSetter("registrationtime")
     public void setRegistrationTime(Object dateTimeSave) {
