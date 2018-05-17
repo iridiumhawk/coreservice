@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/credential")
@@ -36,10 +35,15 @@ public class CredentialRestController {
         }
     }
 
-
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
     public List<Credential> getById(@PathVariable("id") String apiKey) {
     log.trace("Get credential by apiKey={}", apiKey);
         return repository.getCredentialByApiKey(apiKey);
+    }
+
+    @RequestMapping(value = "/get/all", method = RequestMethod.GET)
+    public List<Credential> getAll() {
+    log.trace("Get all credential");
+        return repository.getAllCredential();
     }
 }

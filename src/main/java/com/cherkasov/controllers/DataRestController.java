@@ -37,7 +37,6 @@ public class DataRestController {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
         return dataDAO.findAllByDeviceId(deviceId, controllerId);
-
     }
 
     @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
@@ -48,8 +47,8 @@ public class DataRestController {
         return dataDAO.findLastByDeviceId(deviceId, controllerId);
     }
 
-    @RequestMapping(value = "/get/fresh/{device}", method = RequestMethod.GET)
-    public String getFreshLastByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
+    @RequestMapping(value = "/get/actual/{device}", method = RequestMethod.GET)
+    public String getActualFromControllerByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
@@ -59,15 +58,14 @@ public class DataRestController {
         return dataFromController;
     }
 
-
-
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveData(@PathVariable("id") String controllerId, @RequestBody TimeSeriesData entity, HttpServletRequest request) {
 
         log.debug("ControllerId={}, deviceId={}, body={}", controllerId, entity.getDeviceId(), entity.toString());
 
-        //if client does`not registered then register him
         // TODO: 13.05.2018 make cash here
+
+        //if client does`not registered then register him
         registerClient(controllerId, request);
 
         dataDAO.insert(entity, controllerId);
@@ -80,8 +78,9 @@ public class DataRestController {
 
         log.debug("ControllerId={}, body={}", controllerId,  body);
 
-        //if client does`not registered then register him
         // TODO: 13.05.2018 make cash here
+
+        //if client does`not registered then register him
         registerClient(controllerId, request);
 
         dataDAO.insertJson(body, controllerId);
@@ -89,23 +88,20 @@ public class DataRestController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-
     @RequestMapping(value = "/save/all", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveAllData(@PathVariable("id") String controllerId, @RequestBody List<TimeSeriesData> entity, HttpServletRequest request) {
 
         log.debug("ControllerId={}, body={}", controllerId, entity.toString());
 
-        //if client does`not registered then register him
         // TODO: 13.05.2018 make cash here
+
+        //if client does`not registered then register him
         registerClient(controllerId, request);
 
         dataDAO.insertAll(entity, controllerId);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
-
-
-
 
     private void registerClient(String controllerId, HttpServletRequest request) {
 
@@ -117,7 +113,6 @@ public class DataRestController {
             repository.saveEntity(clientReference);
         }
     }
-
 
     private String getDataFromController(String apiKey, String device) throws ClientNotFoundException {
 
@@ -147,16 +142,6 @@ public class DataRestController {
             httpHeaders = createHeaders(credentials.get(0).getLogin(), credentials.get(0).getPassword());
         }
         ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
-
- /*       ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = null;
-        try {
-            root = mapper.readTree(response.getBody());
-        } catch (IOException e) {
-            log.error("Cannot parse json");
-            return null;
-        }
-        JsonNode uuid = root.path("value");*/
 
         return response.getBody();
     }

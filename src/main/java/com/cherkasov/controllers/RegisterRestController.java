@@ -45,8 +45,8 @@ public class RegisterRestController {
         return repository.getClientReferenceById(entityId);
     }
 
-    @RequestMapping(value = "/get/key/{id}", method = RequestMethod.GET)
-    public List<ClientReference> getByEntityId(@PathVariable("id") String apiKey) {
+    @RequestMapping(value = "/get/{key}", method = RequestMethod.GET)
+    public List<ClientReference> getByApiKey(@PathVariable("key") String apiKey) {
 
         log.trace("Api key={}", apiKey);
         return repository.getClientReferenceByApiKey(apiKey);
@@ -59,7 +59,6 @@ public class RegisterRestController {
      * @param httpHeaders
      * @return
      */
-    @Deprecated
     @RequestMapping(value = "/remove/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> removeById(@PathVariable("id") int entityId, @RequestHeader HttpHeaders httpHeaders) {
 
@@ -67,23 +66,8 @@ public class RegisterRestController {
         final String apiKey = singleValueMap.get("api-key");
         log.trace("Api-Key: {}", apiKey);
 
-/*    User user = repository.getByApiKey(apiKey);
-    log.trace("Current role {}", user.getRole());
-
-    if (RoleType.ADMIN.equals(user.getRole())) {
-      return new ResponseEntity<>(repository.removeById(entityId), HttpStatus.OK);
-    }*/
-        return new ResponseEntity<>(false, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(repository.removeClientReferenceById(entityId), HttpStatus.OK);
     }
-/*
-    @RequestMapping(value = "/save/all", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveAll(@RequestBody List<ClientReference> entities) {
-
-        for (ClientReference entity : entities) {
-            repository.saveEntity(entity);
-        }
-        return new ResponseEntity<>(true, HttpStatus.OK);
-    }*/
 
     @RequestMapping(value = "/save/one", method = RequestMethod.POST)
     public ResponseEntity<ClientReference> saveOne(@RequestBody ClientReference entity, HttpServletRequest request) {

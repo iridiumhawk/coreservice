@@ -2,6 +2,7 @@ package com.cherkasov.controllers;
 
 import com.cherkasov.entities.Device;
 import com.cherkasov.repositories.DeviceDAO;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,32 @@ public class DeviceRestController {
         log.debug("ControllerId={}", controllerId);
 
         return deviceDAO.getAll(controllerId);
+    }
+
+    @Deprecated
+    @RequestMapping(value = "/get/all/actual", method = RequestMethod.GET)
+    public List<Device> getAllDevicesFromController(@PathVariable("id") String controllerId) {
+
+        log.debug("ControllerId={}", controllerId);
+        log.warn("not yet realized!");
+        List<Device> devices = getFromController(controllerId);
+        saveAllDevicesToDb(devices, controllerId);
+
+        return devices;
+    }
+
+    /**
+     * Not yet realized. Send query to controller and get all devices from it
+     * @param controllerId
+     * @return
+     */
+    @Deprecated
+    private List<Device> getFromController(String controllerId) {
+        return Collections.emptyList();
+    }
+
+    private void saveAllDevicesToDb(List<Device> devices, String controllerId) {
+        deviceDAO.insertAll(devices, controllerId);
     }
 
     @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)

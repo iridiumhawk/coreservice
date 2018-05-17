@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
+// TODO: 17.05.2018 Remove when everything will works
+
 @Slf4j
 @RestController
 @RequestMapping("/pattern")

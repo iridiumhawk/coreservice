@@ -37,10 +37,10 @@ public class ManageRestController {
      * @param command
      * @return
      */
-    @RequestMapping(value = "/set/{device}/{command}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/set/{device}/{command}", method = RequestMethod.GET)
     public String sendCommandToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("command") String command) {
 
-        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+        log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
 
         String dataFromController = sendCommandToController(controllerId, deviceId, command);
 
@@ -54,14 +54,16 @@ public class ManageRestController {
      * @param command
      * @return
      */
-    // TODO: 16.05.2018 may be , method = RequestMethod.GET?
-    @RequestMapping(value = "/set/{device}/{commandclass}/{value}", method = RequestMethod.PUT)
+    // TODO: 16.05.2018 may be RequestMethod.GET or PUT?
+    @Deprecated
+    @RequestMapping(value = "/set/{device}/{commandclass}/{value}", method = RequestMethod.GET)
     public String sendParameterToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("commandclass") String command) {
 
-        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+        log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
 
 //        String dataFromController = sendCommandToController(controllerId, deviceId, command);
 
+        // TODO: 17.05.2018 which API from zwave have to use?
         return "don`t work yet";
     }
 
