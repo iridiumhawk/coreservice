@@ -107,8 +107,6 @@ public class DataRepository {
     return em.createNamedQuery("Store.removeById").setParameter("id", id).executeUpdate() != 0;
   }
 
-
-
   @Transactional
   public Credential saveCredential(Credential data) {
     Objects.requireNonNull(data, "Cannot store entity because it is null");
@@ -144,6 +142,11 @@ public class DataRepository {
     return credential;
   }
 
+  public List<Credential> getAllCredential() {
+    log.trace("Get all credential");
+    return em.createNamedQuery("Credential.getAll", Credential.class).getResultList();
+  }
+
 
   @Transactional
   public User saveUser(User user) {
@@ -162,6 +165,4 @@ public class DataRepository {
     }
     return user;
   }
-
-
 }

@@ -2,6 +2,7 @@ package com.cherkasov.repositories;
 
 import com.cherkasov.entities.Device;
 import com.mongodb.WriteResult;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -28,7 +29,6 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     }
 
-
     @Override
     public void insert(Device device, String collection) {
     this.operations.insert(device, collection);
@@ -52,7 +52,6 @@ public class DeviceDAOImpl implements DeviceDAO {
         return this.operations.findAll(Device.class, collection);
     }
 
-
     @Override
     public int deleteByName(String device, String collection) {
         Query query = new Query(Criteria.where("name").is(device));
@@ -74,5 +73,10 @@ public class DeviceDAOImpl implements DeviceDAO {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Set<String> getAllControllersName() {
+        return operations.getCollectionNames();
     }
 }

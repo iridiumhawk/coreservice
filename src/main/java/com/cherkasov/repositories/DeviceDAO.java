@@ -3,6 +3,7 @@ package com.cherkasov.repositories;
 import com.cherkasov.entities.Device;
 
 import java.util.List;
+import java.util.Set;
 
 public interface DeviceDAO {
     void insert(Device device, String collection);
@@ -19,4 +20,5 @@ public interface DeviceDAO {
 
     boolean dropCollectionIfExist(String collection);
 
+    Set<String> getAllControllersName();
 }

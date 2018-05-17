@@ -11,9 +11,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Slf4j
@@ -27,7 +24,6 @@ public class DataDAOImpl implements DataDAO {
     public void insert(TimeSeriesData data, String collection) {
 
         this.operations.insert(data, collection);
-
     }
 
     @Override
