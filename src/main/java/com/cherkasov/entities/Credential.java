@@ -13,7 +13,10 @@ import java.time.LocalDateTime;
 /**
  * Entity for store credential in database.
  */
-@NamedQuery(name = "Credential.getById", query = "SELECT cred FROM Credential cred WHERE cred.apiKey = :apikey")
+@NamedQueries(value = {
+    @NamedQuery(name = "Credential.getById", query = "SELECT cred FROM Credential cred WHERE cred.apiKey = :apikey"),
+    @NamedQuery(name = "Credential.getAll", query = "SELECT cred FROM Credential cred ORDER BY cred.registrationTime DESC")
+})
 @ToString
 @Getter
 @Setter
