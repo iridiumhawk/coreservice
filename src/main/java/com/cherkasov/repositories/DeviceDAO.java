@@ -8,6 +8,8 @@ import java.util.Set;
 public interface DeviceDAO {
     void insert(Device device, String collection);
 
+    void insertJson(String json, String collection);
+
     void update(Device device, String collection);
 
     Device findByName(String device, String collection);
@@ -19,6 +21,8 @@ public interface DeviceDAO {
     void insertAll(List<Device> devices, String collection);
 
     boolean dropCollectionIfExist(String collection);
+
+    List<Device> deleteAllNull(String collection);
 
     Set<String> getAllControllersName();
 }

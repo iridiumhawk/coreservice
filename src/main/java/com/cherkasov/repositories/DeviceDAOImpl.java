@@ -1,8 +1,11 @@
 package com.cherkasov.repositories;
 
 import com.cherkasov.entities.Device;
+import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import java.util.Set;
+
+import com.mongodb.util.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -57,6 +60,22 @@ public class DeviceDAOImpl implements DeviceDAO {
         Query query = new Query(Criteria.where("name").is(device));
         WriteResult result = this.operations.remove(query, Device.class, collection);
         return result.getN();
+    }
+
+
+    @Override
+    public List<Device> deleteAllNull(String collection) {
+        Query query = new Query(Criteria.where("name").is(null));
+        List<Device> remove = this.operations.findAllAndRemove(query, Device.class, collection);
+        return remove;
+    }
+
+    @Override
+    public void insertJson(String json, String collection) {
+
+        DBObject dbObject = (DBObject) JSON.parse(json);
+
+        this.operations.insert(dbObject, collection);
     }
 
     @Override
