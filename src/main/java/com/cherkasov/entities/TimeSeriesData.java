@@ -1,5 +1,6 @@
 package com.cherkasov.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +13,14 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Getter
 @ToString
 @Document
+//@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeSeriesData {
     @Id
     private String id;
     @Field("deviceid")
     @JsonProperty("deviceid")
     private String deviceId;
-    private Float value;
+    private String value;
     @Field("updatetime")
     @JsonProperty("updatetime")
     private Long updateTime;
@@ -27,11 +29,4 @@ public class TimeSeriesData {
 
     }
 
-/*    public TimeSeriesData(String id, String deviceId, Float value, Long updateTime) {
-
-        this.id = id;
-        this.deviceId = deviceId;
-        this.value = value;
-        this.updateTime = updateTime;
-    }*/
 }
