@@ -1,10 +1,7 @@
 package com.cherkasov.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -24,7 +21,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     http.csrf().disable()
         .authorizeRequests()
-        .antMatchers("/", "/home", "/about", "/api/v1/**").permitAll() //, "/swagger**"
+        .antMatchers("/", "/home", "/about", "/api/v1/**", "/swagger**").permitAll() //, "/swagger**"
         .antMatchers("/admin/**").hasAnyRole("ADMIN")
         .antMatchers("/user/**").hasAnyRole("USER")
 //        .antMatchers("/api/v1/**").hasAnyRole("USER")
