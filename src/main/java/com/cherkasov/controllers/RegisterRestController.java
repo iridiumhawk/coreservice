@@ -53,7 +53,7 @@ public class RegisterRestController {
     }
 
     /**
-     * Remove entity by id with authorisation (api-key)
+     * Remove entity by id
      *
      * @param entityId
      * @param httpHeaders

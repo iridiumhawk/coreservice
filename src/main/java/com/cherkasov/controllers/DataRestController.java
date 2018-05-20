@@ -9,15 +9,19 @@ import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataDAO;
 import com.cherkasov.repositories.DataRepository;
 import com.cherkasov.utils.Helper;
+import com.mongodb.util.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 import java.util.List;
+
+import static com.cherkasov.utils.Helper.createHeaders;
 
 @Slf4j
 @RestController
@@ -55,13 +59,17 @@ public class DataRestController {
         String dataFromController = getDataFromController(controllerId, deviceId);
 
         // TODO: 13.05.2018 save to base or return as is?
+        // TODO: 20.05.2018 parse JSON to convenient form?
         return dataFromController;
     }
 
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveData(@PathVariable("id") String controllerId, @RequestBody TimeSeriesData entity, HttpServletRequest request) {
+    @RequestMapping(value = "/save/{deviceId}", method = RequestMethod.POST)
+    public ResponseEntity<Boolean> saveData(@PathVariable("id") String controllerId, @PathVariable("deviceId") String deviceId, @RequestBody TimeSeriesData entity, HttpServletRequest request) {
 
-        log.debug("ControllerId={}, deviceId={}, body={}", controllerId, entity.getDeviceId(), entity.toString());
+        log.debug("ControllerId={}, deviceId={}, body={}", controllerId, deviceId, entity);
+
+        // TODO: 20.05.2018 make Gson parser
+//        TimeSeriesData entity = (TimeSeriesData)JSON.parse(body) ;
 
         // TODO: 13.05.2018 make cash here
 
@@ -76,7 +84,7 @@ public class DataRestController {
     @RequestMapping(value = "/save/json", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveJSONData(@PathVariable("id") String controllerId, @RequestBody String body, HttpServletRequest request) {
 
-        log.debug("ControllerId={}, body={}", controllerId,  body);
+        log.debug("ControllerId={}, body={}", controllerId, body);
 
         // TODO: 13.05.2018 make cash here
 
@@ -146,13 +154,5 @@ public class DataRestController {
         return response.getBody();
     }
 
-    private HttpHeaders createHeaders(String username, String password) {
 
-        return new HttpHeaders() {{
-            String auth = username + ":" + password;
-            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("UTF-8")));
-            String authHeader = "Basic " + new String(encodedAuth);
-            set("Authorization", authHeader);
-        }};
-    }
 }
