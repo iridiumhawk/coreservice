@@ -45,9 +45,12 @@ public class ParseJsonTest {
 //            device.setLastReceived();
 //            device.setLastSend();
 
+            if (device.getName() == null || device.getName().isEmpty()) {
+                System.out.println("NULL");
+            }
             devices.add(device);
         }
 
-//        System.out.println(devices);
+        System.out.println(devices);
     }
 }
