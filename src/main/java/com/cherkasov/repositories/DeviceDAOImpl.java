@@ -62,6 +62,15 @@ public class DeviceDAOImpl implements DeviceDAO {
         return result.getN();
     }
 
+    @Override
+    public List<Device> deleteAll(String collection) {
+        List<Device> all = this.operations.findAll(Device.class, collection);
+        for (Device device : all) {
+            WriteResult remove = this.operations.remove(device);
+        }
+        log.trace("Removed devices:\n{}", all);
+        return all;
+    }
 
     @Override
     public List<Device> deleteAllNull(String collection) {
@@ -81,7 +90,10 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public void insertAll(List<Device> devices, String collection) {
-        this.operations.insert(devices, collection);
+
+        for (Device device : devices) {
+            this.operations.save(device, collection);
+        }
     }
 
     @Override

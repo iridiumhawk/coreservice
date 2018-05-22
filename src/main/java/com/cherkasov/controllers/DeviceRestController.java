@@ -58,12 +58,20 @@ public class DeviceRestController {
      * @param controllerId
      * @return
      */
+    @RequestMapping(value = "/remove/all/null", method = RequestMethod.DELETE)
+    public List<Device> deleteAllNullDevices(@PathVariable("id") String controllerId) {
+
+        log.debug("ControllerId={}", controllerId);
+
+        return deviceDAO.deleteAllNull(controllerId);
+    }
+
     @RequestMapping(value = "/remove/all", method = RequestMethod.DELETE)
     public List<Device> deleteAllDevices(@PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
 
-        return deviceDAO.deleteAllNull(controllerId);
+        return deviceDAO.deleteAll(controllerId);
     }
 
     @RequestMapping(value = "/get/all/actual", method = RequestMethod.GET)

@@ -23,6 +23,7 @@ public interface DeviceDAO {
     boolean dropCollectionIfExist(String collection);
 
     List<Device> deleteAllNull(String collection);
+    List<Device> deleteAll(String collection);
 
     Set<String> getAllControllersName();
 }
