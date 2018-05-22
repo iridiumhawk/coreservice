@@ -67,6 +67,7 @@ public class DeviceDAOImpl implements DeviceDAO {
     public List<Device> deleteAllNull(String collection) {
         Query query = new Query(Criteria.where("name").is(null));
         List<Device> remove = this.operations.findAllAndRemove(query, Device.class, collection);
+        log.trace("Removed devices:\n{}", remove);
         return remove;
     }
 

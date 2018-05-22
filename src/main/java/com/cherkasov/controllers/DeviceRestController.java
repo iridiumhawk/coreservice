@@ -36,6 +36,8 @@ import static com.cherkasov.utils.Helper.createHeaders;
 @RequestMapping("/api/v1/device/{id}")
 public class DeviceRestController {
 
+    private static final String DEVICE_PATTERN = "ZWayVDev";
+
     @Autowired
     private DeviceDAO deviceDAO;
 
@@ -51,6 +53,11 @@ public class DeviceRestController {
         return deviceDAO.getAll(controllerId);
     }
 
+    /**
+     * Delete devices with NULL name
+     * @param controllerId
+     * @return
+     */
     @RequestMapping(value = "/remove/all", method = RequestMethod.DELETE)
     public List<Device> deleteAllDevices(@PathVariable("id") String controllerId) {
 
@@ -59,12 +66,10 @@ public class DeviceRestController {
         return deviceDAO.deleteAllNull(controllerId);
     }
 
-    //    @Deprecated
     @RequestMapping(value = "/get/all/actual", method = RequestMethod.GET)
     public List<Device> getAllDevicesFromController(@PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
-//        log.warn("not yet realized!");
         List<Device> devices = getFromController(controllerId);
         saveAllDevicesToDb(devices, controllerId);
 
@@ -108,7 +113,7 @@ public class DeviceRestController {
 //            device.setLastReceived();
 //            device.setLastSend();
 
-            if (device.getName() == null || device.getName().isEmpty()) {
+            if (device.getName() == null || device.getName().isEmpty() || !device.getName().contains(DEVICE_PATTERN)) {
                 continue;
             }
 
