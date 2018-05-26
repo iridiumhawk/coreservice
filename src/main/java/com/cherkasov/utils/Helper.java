@@ -31,4 +31,21 @@ public class Helper {
         }};
     }
 
+    public static String getDeviceName(String controllerDevice) {
+        //e8639832111cffa939ed53e765ecb17d::ZWayVDev_zway_5-0-49-1
+        String[] split = controllerDevice.split("::");
+        if (split.length > 1) {
+            return split[1];
+        }
+        return "";
+    }
+
+    public static String getControllerName(String controllerDevice) {
+        String[] split = controllerDevice.split("::");
+        if (split.length > 1) {
+            return split[0];
+        }
+        return "";
+    }
+
 }
