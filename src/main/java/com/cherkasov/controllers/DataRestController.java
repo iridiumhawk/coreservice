@@ -22,6 +22,8 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import static com.cherkasov.utils.Helper.createHeaders;
+import static com.cherkasov.utils.Helper.getControllerName;
+import static com.cherkasov.utils.Helper.getDeviceName;
 
 @Slf4j
 @RestController
@@ -43,9 +45,26 @@ public class DataRestController {
         return dataDAO.findAllByDeviceId(deviceId, controllerId);
     }
 
+    @RequestMapping(value = "/get/all", method = RequestMethod.GET)
+    public List<TimeSeriesData> getAllByDeviceIdCombine(@PathVariable("id") String controllerDevice) {
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+        return dataDAO.findAllByDeviceId(deviceId, controllerId);
+    }
+
     @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
     public TimeSeriesData getLastByDeviceId(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
 
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+
+        return dataDAO.findLastByDeviceId(deviceId, controllerId);
+    }
+
+    @RequestMapping(value = "/get/last", method = RequestMethod.GET)
+    public TimeSeriesData getLastByDeviceIdCombine(@PathVariable("id") String controllerDevice) {
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         return dataDAO.findLastByDeviceId(deviceId, controllerId);
@@ -63,6 +82,25 @@ public class DataRestController {
         return dataFromController;
     }
 
+    /**
+     * Processing ID from combination of controller and device, like e8639832111cffa939ed53e765ecb17d::ZWayVDev_zway_5-0-49-1
+     * @param controllerDevice
+     * @return
+     */
+    @RequestMapping(value = "/get/actual", method = RequestMethod.GET)
+    public String getActualFromControllerByDeviceIdCombine(@PathVariable("id") String controllerDevice) {
+
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
+
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+
+        String dataFromController = getDataFromController(controllerId, deviceId);
+
+        return dataFromController;
+    }
+
+
     @RequestMapping(value = "/save/{deviceId}", method = RequestMethod.POST)
     public ResponseEntity<Boolean> saveData(@PathVariable("id") String controllerId, @PathVariable("deviceId") String deviceId, @RequestBody TimeSeriesData entity, HttpServletRequest request) {
 
@@ -72,6 +110,20 @@ public class DataRestController {
 //        TimeSeriesData entity = (TimeSeriesData)JSON.parse(body) ;
 
         // TODO: 13.05.2018 make cash here
+
+        //if client does`not registered then register him
+        registerClient(controllerId, request);
+
+        dataDAO.insert(entity, controllerId);
+
+        return new ResponseEntity<>(true, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public ResponseEntity<Boolean> saveDataCombine(@PathVariable("id") String controllerDevice, @RequestBody TimeSeriesData entity, HttpServletRequest request) {
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
+        log.debug("ControllerId={}, deviceId={}, body={}", controllerId, deviceId, entity);
 
         //if client does`not registered then register him
         registerClient(controllerId, request);
@@ -153,6 +205,5 @@ public class DataRestController {
 
         return response.getBody();
     }
-
 
 }

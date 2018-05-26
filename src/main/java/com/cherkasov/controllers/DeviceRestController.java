@@ -10,8 +10,8 @@ import com.cherkasov.repositories.DeviceDAO;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
+import com.cherkasov.utils.Helper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.cherkasov.utils.Helper.createHeaders;
+import static com.cherkasov.utils.Helper.getControllerName;
+import static com.cherkasov.utils.Helper.getDeviceName;
 
 @Slf4j
 @RestController
@@ -138,6 +140,16 @@ public class DeviceRestController {
 
     @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)
     public Device getOneDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
+
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+
+        return deviceDAO.findByName(deviceId, controllerId);
+    }
+
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    public Device getOneDeviceCombine(@PathVariable("id") String controllerDevice) {
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 

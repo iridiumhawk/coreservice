@@ -22,6 +22,9 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import static com.cherkasov.utils.Helper.getControllerName;
+import static com.cherkasov.utils.Helper.getDeviceName;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/manage/{id}")
@@ -47,6 +50,17 @@ public class ManageRestController {
         return dataFromController;
     }
 
+    @RequestMapping(value = "/set/{command}", method = RequestMethod.GET)
+    public String sendCommandToDeviceCombine(@PathVariable("id") String controllerDevice, @PathVariable("command") String command) {
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
+        log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
+
+        String dataFromController = sendCommandToController(controllerId, deviceId, command);
+
+        return dataFromController;
+    }
+
     /**
      *
      * @param controllerId
@@ -62,7 +76,7 @@ public class ManageRestController {
         log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
 
 //        String dataFromController = sendCommandToController(controllerId, deviceId, command);
-
+//http://192.168.1.56:8083/ZWaveAPI/Run/zway.devices[12].commandClasses[32].Set(255)
         // TODO: 17.05.2018 which API from zwave have to use?
         return "don`t work yet";
     }
