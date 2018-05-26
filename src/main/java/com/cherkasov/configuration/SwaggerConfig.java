@@ -43,7 +43,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Smart Home - REST API, v.0.3.6",
+                "Smart Home - REST API, v.0.3.10",
                 "REST API interface and documentation.",
                 null,
                 null,

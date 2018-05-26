@@ -42,8 +42,14 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public void update(Device device, String collection) {
-
-        this.operations.save(device, collection);
+        // TODO: 26.05.2018 make more simple
+        Device byName = findByName(device.getName(), collection);
+        if (byName != null) {
+            device.setId(byName.getId());
+            this.operations.save(device, collection);
+        } else {
+            insert(device, collection);
+        }
     }
 
     @Override
