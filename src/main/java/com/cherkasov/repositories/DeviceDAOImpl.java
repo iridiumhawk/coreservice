@@ -56,8 +56,7 @@ public class DeviceDAOImpl implements DeviceDAO {
     public void updateAll(List<Device> devices, String collection) {
 
         for (Device deviceUpdate : devices) {
-
-            this.operations.save(deviceUpdate, collection);
+            update(deviceUpdate, collection);
         }
     }
 
@@ -70,8 +69,10 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public List<Device> getAll(String collection) {
-
-        return this.operations.findAll(Device.class, collection);
+        Query query = new Query(Criteria.where("_class").is("com.cherkasov.entities.Device"));
+        List<Device> all = this.operations.find(query, Device.class, collection);
+//        return this.operations.findAll(Device.class, collection);
+        return all;
     }
 
     @Override
