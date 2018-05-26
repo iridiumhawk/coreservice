@@ -135,7 +135,7 @@ public class DeviceRestController {
 
     private void saveAllDevicesToDb(List<Device> devices, String controllerId) {
 
-        deviceDAO.insertAll(devices, controllerId);
+        deviceDAO.updateAll(devices, controllerId);
     }
 
     @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)

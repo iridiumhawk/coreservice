@@ -12,6 +12,8 @@ public interface DeviceDAO {
 
     void update(Device device, String collection);
 
+    void updateAll(List<Device> device, String collection);
+
     Device findByName(String device, String collection);
 
     List<Device> getAll(String collection);

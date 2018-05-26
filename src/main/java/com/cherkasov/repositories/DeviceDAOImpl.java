@@ -3,6 +3,7 @@ package com.cherkasov.repositories;
 import com.cherkasov.entities.Device;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+
 import java.util.Set;
 
 import com.mongodb.util.JSON;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 @Repository
@@ -34,12 +36,23 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public void insert(Device device, String collection) {
-    this.operations.insert(device, collection);
+
+        this.operations.insert(device, collection);
     }
 
     @Override
     public void update(Device device, String collection) {
+
         this.operations.save(device, collection);
+    }
+
+    @Override
+    public void updateAll(List<Device> devices, String collection) {
+
+        for (Device deviceUpdate : devices) {
+
+            this.operations.save(deviceUpdate, collection);
+        }
     }
 
     @Override
@@ -57,6 +70,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public int deleteByName(String device, String collection) {
+
         Query query = new Query(Criteria.where("name").is(device));
         WriteResult result = this.operations.remove(query, Device.class, collection);
         return result.getN();
@@ -64,17 +78,25 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public List<Device> deleteAll(String collection) {
-        List<Device> all = this.operations.findAll(Device.class, collection);
+
+        Query query = new Query(Criteria.where("_class").is("com.cherkasov.entities.Device"));
+        List<Device> remove = this.operations.findAllAndRemove(query, Device.class, collection);
+        log.trace("Removed devices:\n{}", remove);
+        return remove;
+
+/*        List<Device> all = this.operations.findAll(Device.class, collection);
         for (Device device : all) {
             WriteResult remove = this.operations.remove(device);
         }
         log.trace("Removed devices:\n{}", all);
-        return all;
+        return all;*/
     }
 
     @Override
     public List<Device> deleteAllNull(String collection) {
-        Query query = new Query(Criteria.where("name").is(null));
+        // TODO: 26.05.2018 null is not correct criteria !!! removes all data
+        //try "_class": "com.cherkasov.entities.Device"
+        Query query = new Query(Criteria.where("name").is(null).andOperator(Criteria.where("_class").is("com.cherkasov.entities.Device")));
         List<Device> remove = this.operations.findAllAndRemove(query, Device.class, collection);
         log.trace("Removed devices:\n{}", remove);
         return remove;
@@ -109,6 +131,7 @@ public class DeviceDAOImpl implements DeviceDAO {
 
     @Override
     public Set<String> getAllControllersName() {
+
         return operations.getCollectionNames();
     }
 }
