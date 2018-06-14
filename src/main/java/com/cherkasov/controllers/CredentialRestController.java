@@ -27,23 +27,22 @@ public class CredentialRestController {
         if (credential == null || credential.isEmpty()) {
             entity.setId(null);
             credentialStored = repository.saveCredential(entity);
-            return new ResponseEntity<>(credentialStored, HttpStatus.OK);
         } else {
             entity.setId(credential.get(0).getId());
             credentialStored = repository.saveCredential(entity);
-            return new ResponseEntity<>(credentialStored, HttpStatus.OK);
         }
+        return new ResponseEntity<>(credentialStored, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public List<Credential> getById(@PathVariable("id") String apiKey) {
+    public ResponseEntity<List<Credential>> getById(@PathVariable("id") String apiKey) {
     log.trace("Get credential by apiKey={}", apiKey);
-        return repository.getCredentialByApiKey(apiKey);
+        return new ResponseEntity<>(repository.getCredentialByApiKey(apiKey), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/get/all", method = RequestMethod.GET)
-    public List<Credential> getAll() {
+    public ResponseEntity<List<Credential>> getAll() {
     log.trace("Get all credential");
-        return repository.getAllCredential();
+        return new ResponseEntity<>(repository.getAllCredential(), HttpStatus.OK);
     }
 }
