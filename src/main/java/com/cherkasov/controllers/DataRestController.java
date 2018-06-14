@@ -76,7 +76,8 @@ public class DataRestController {
         TimeSeriesData lastByDeviceId = dataDAO.findLastByDeviceId(deviceId, controllerId);
         HttpStatus status = HttpStatus.OK;
         if (lastByDeviceId == null) {
-            status = HttpStatus.NOT_FOUND;
+//            status = HttpStatus.NO_CONTENT;
+            return new ResponseEntity<>((TimeSeriesData)null, status);
         }
         return new ResponseEntity<>(lastByDeviceId, status);
     }
@@ -90,7 +91,7 @@ public class DataRestController {
         TimeSeriesData lastByDeviceId = dataDAO.findLastByDeviceId(deviceId, controllerId);
         HttpStatus status = HttpStatus.OK;
         if (lastByDeviceId == null) {
-            status = HttpStatus.NOT_FOUND;
+            status = HttpStatus.NO_CONTENT;
         }
         return new ResponseEntity<>(lastByDeviceId, status);
     }
