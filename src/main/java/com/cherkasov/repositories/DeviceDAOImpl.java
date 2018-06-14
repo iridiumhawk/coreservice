@@ -67,11 +67,13 @@ public class DeviceDAOImpl implements DeviceDAO {
         return this.operations.findOne(query, Device.class, collection);
     }
 
+    // TODO: 27.05.2018 while searching dont take class name in consideration !!!  simple return result as this class
     @Override
     public List<Device> getAll(String collection) {
         Query query = new Query(Criteria.where("_class").is("com.cherkasov.entities.Device"));
         List<Device> all = this.operations.find(query, Device.class, collection);
 //        return this.operations.findAll(Device.class, collection);
+
         return all;
     }
 
