@@ -43,11 +43,11 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-                "Smart Home - REST API, v.0.3.10",
+                "Smart Home - REST API, v.0.3.12",
                 "REST API interface and documentation.",
                 null,
                 null,
-                new Contact("Alexey Cherkasov", "https://cherkasov.com", "hawk_san@mail.ru"),
+                new Contact("Alexey Cherkasov", "", "hawk_san@mail.ru"),
                 null,
                 null,
                 Collections.emptyList()
