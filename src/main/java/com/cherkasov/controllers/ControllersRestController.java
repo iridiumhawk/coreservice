@@ -1,6 +1,7 @@
 package com.cherkasov.controllers;
 
 import com.cherkasov.repositories.DeviceDAO;
+import io.swagger.annotations.ApiOperation;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class ControllersRestController {
     @Autowired
     private DeviceDAO deviceDAO;
 
-
+    @ApiOperation(value = "Список контроллеров", notes = "Возвращает {id} всех контроллеров", produces = "application/json")
     @RequestMapping(value = "/get/all", method = RequestMethod.GET)
     public Set<String> getAllControllers() {
 
@@ -24,5 +25,4 @@ public class ControllersRestController {
 
         return deviceDAO.getAllControllersName();
     }
-
 }

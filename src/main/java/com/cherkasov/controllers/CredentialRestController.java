@@ -2,6 +2,8 @@ package com.cherkasov.controllers;
 
 import com.cherkasov.entities.Credential;
 import com.cherkasov.repositories.DataRepository;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +20,12 @@ public class CredentialRestController {
     @Autowired
     private DataRepository repository;
 
+    @ApiOperation(value = "Сохранить данные аутентификации", notes = "Сохраняет в базу логин и пароль для доступа к API zway сервера для контроллера с именем 'apiKey'", consumes = "application/json")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Credential> saveOne(@RequestBody Credential entity) {
+    public ResponseEntity<Credential> saveOne(
+        @ApiParam(value = "аутентификационные данные (Credential.class)", required = true)
+        @RequestBody Credential entity) {
+
         log.trace("Save credential={}", entity);
 
         List<Credential> credential = repository.getCredentialByApiKey(entity.getApiKey());
@@ -34,12 +40,17 @@ public class CredentialRestController {
         return new ResponseEntity<>(credentialStored, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-    public ResponseEntity<List<Credential>> getById(@PathVariable("id") String apiKey) {
+    @ApiOperation(value = "Получить данные аутентификации", notes = "Получить логин и пароль для доступа к API zway сервера для контроллера", produces = "application/json")
+    @RequestMapping(value = "/get/one/{id}", method = RequestMethod.GET)
+    public ResponseEntity<List<Credential>> getById(
+        @ApiParam(value = "{id} контроллера", required = true)
+        @PathVariable("id") String apiKey) {
+
     log.trace("Get credential by apiKey={}", apiKey);
         return new ResponseEntity<>(repository.getCredentialByApiKey(apiKey), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Получить все данные аутентификации", notes = "Получить все логины и пароли для доступа к API zway сервера для всех контроллеров", produces = "application/json")
     @RequestMapping(value = "/get/all", method = RequestMethod.GET)
     public ResponseEntity<List<Credential>> getAll() {
     log.trace("Get all credential");

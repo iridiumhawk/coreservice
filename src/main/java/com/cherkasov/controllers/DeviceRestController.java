@@ -8,6 +8,8 @@ import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataRepository;
 import com.cherkasov.repositories.DeviceDAO;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -46,9 +48,11 @@ public class DeviceRestController {
     @Autowired
     private DataRepository repository;
 
-
+    @ApiOperation(value = "Получить список всех устройств", notes = "Список всех существующих устройств на контроллере {id}", produces = "application/json")
     @RequestMapping(value = "/get/all", method = RequestMethod.GET)
-    public List<Device> getAllDevices(@PathVariable("id") String controllerId) {
+    public List<Device> getAllDevices(
+        @ApiParam(value = "{id} контроллера", required = true)
+        @PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
 
