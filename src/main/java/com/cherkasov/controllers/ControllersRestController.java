@@ -17,7 +17,7 @@ public class ControllersRestController {
     @Autowired
     private DeviceDAO deviceDAO;
 
-    @ApiOperation(value = "Список контроллеров", notes = "Возвращает {id} всех контроллеров", produces = "application/json")
+    @ApiOperation(value = "Список контроллеров", notes = "Возвращает id всех контроллеров", produces = "application/json")
     @RequestMapping(value = "/get/all", method = RequestMethod.GET)
     public Set<String> getAllControllers() {
 

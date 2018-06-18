@@ -64,24 +64,33 @@ public class DeviceRestController {
      * @param controllerId
      * @return
      */
+    @ApiOperation(value = "Удалить все пустые устройства", notes = "Удалить все устройства из базы {id} которых null", produces = "application/json")
     @RequestMapping(value = "/remove/all/null", method = RequestMethod.DELETE)
-    public List<Device> deleteAllNullDevices(@PathVariable("id") String controllerId) {
+    public List<Device> deleteAllNullDevices(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
 
         return deviceDAO.deleteAllNull(controllerId);
     }
 
+    @ApiOperation(value = "Удалить все устройства", notes = "Удалить все устройства из базы", produces = "application/json")
     @RequestMapping(value = "/remove/all", method = RequestMethod.DELETE)
-    public List<Device> deleteAllDevices(@PathVariable("id") String controllerId) {
+    public List<Device> deleteAllDevices(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
 
         return deviceDAO.deleteAll(controllerId);
     }
 
+    @ApiOperation(value = "Получить список всех устройств с контроллера", notes = "Запросить список всех существующих устройств прямо с контроллера", produces = "application/json")
     @RequestMapping(value = "/get/all/actual", method = RequestMethod.GET)
-    public List<Device> getAllDevicesFromController(@PathVariable("id") String controllerId) {
+    public List<Device> getAllDevicesFromController(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId) {
 
         log.debug("ControllerId={}", controllerId);
         List<Device> devices = getFromController(controllerId);
@@ -89,6 +98,67 @@ public class DeviceRestController {
 
 //        deviceDAO.insertJson("",controllerId);
         return devices;
+    }
+
+
+    @ApiOperation(value = "Получить описание устройства", notes = "Получить описание устройства {device} для контроллера {id}", produces = "application/json")
+    @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)
+    public Device getOneDevice(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId,
+            @ApiParam(value = "{device} устройство", required = true)
+            @PathVariable("device") String deviceId) {
+
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+
+        return deviceDAO.findByName(deviceId, controllerId);
+    }
+
+    @ApiOperation(value = "Получить описание устройства (комбинированный id)", notes = "Получить описание устройства  для контроллера, {id} указыватся в виде controller_id::device_id", produces = "application/json")
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    public Device getOneDeviceCombine(
+            @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
+            @PathVariable("id") String controllerDevice) {
+
+        String controllerId = getControllerName(controllerDevice);
+        String deviceId = getDeviceName(controllerDevice);
+
+        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
+
+        return deviceDAO.findByName(deviceId, controllerId);
+    }
+
+
+    private String getDataFromController(String apiKey) throws ClientNotFoundException {
+
+        List<ClientReference> clientReference = repository.getClientReferenceByApiKey(apiKey);
+        if (clientReference == null || clientReference.isEmpty()) {
+            throw new ClientNotFoundException();
+        }
+        String dataFromClient = getDataFromClient(clientReference.get(0).getHost(), apiKey);
+
+        return dataFromClient;
+    }
+
+    private String getDataFromClient(String host, String apiKey) {
+
+        if (host == null) {
+            return "null";
+        }
+
+        RestTemplate restTemplate = new RestTemplate();
+        //get by
+        String clientURL = Configuration.deviceData.replace("*", host);
+        List<Credential> credentials = repository.getCredentialByApiKey(apiKey);
+        HttpHeaders httpHeaders;
+        if (credentials == null || credentials.isEmpty()) {
+            httpHeaders = createHeaders(Configuration.clientLogin, Configuration.clientPassword);
+        } else {
+            httpHeaders = createHeaders(credentials.get(0).getLogin(), credentials.get(0).getPassword());
+        }
+        ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
+
+        return response.getBody();
     }
 
     /**
@@ -137,60 +207,14 @@ public class DeviceRestController {
         return devices;
     }
 
+    /**
+     * Saves all devices into db
+     * @param devices
+     * @param controllerId
+     */
     private void saveAllDevicesToDb(List<Device> devices, String controllerId) {
 
         deviceDAO.updateAll(devices, controllerId);
-    }
-
-    @RequestMapping(value = "/get/{device}", method = RequestMethod.GET)
-    public Device getOneDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId) {
-
-        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
-
-        return deviceDAO.findByName(deviceId, controllerId);
-    }
-
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public Device getOneDeviceCombine(@PathVariable("id") String controllerDevice) {
-        String controllerId = getControllerName(controllerDevice);
-        String deviceId = getDeviceName(controllerDevice);
-
-        log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
-
-        return deviceDAO.findByName(deviceId, controllerId);
-    }
-
-
-    private String getDataFromController(String apiKey) throws ClientNotFoundException {
-
-        List<ClientReference> clientReference = repository.getClientReferenceByApiKey(apiKey);
-        if (clientReference == null || clientReference.isEmpty()) {
-            throw new ClientNotFoundException();
-        }
-        String dataFromClient = getDataFromClient(clientReference.get(0).getHost(), apiKey);
-
-        return dataFromClient;
-    }
-
-    private String getDataFromClient(String host, String apiKey) {
-
-        if (host == null) {
-            return "null";
-        }
-
-        RestTemplate restTemplate = new RestTemplate();
-        //get by
-        String clientURL = Configuration.deviceData.replace("*", host);
-        List<Credential> credentials = repository.getCredentialByApiKey(apiKey);
-        HttpHeaders httpHeaders;
-        if (credentials == null || credentials.isEmpty()) {
-            httpHeaders = createHeaders(Configuration.clientLogin, Configuration.clientPassword);
-        } else {
-            httpHeaders = createHeaders(credentials.get(0).getLogin(), credentials.get(0).getPassword());
-        }
-        ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
-
-        return response.getBody();
     }
 
 }

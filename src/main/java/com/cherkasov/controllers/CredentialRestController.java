@@ -20,7 +20,7 @@ public class CredentialRestController {
     @Autowired
     private DataRepository repository;
 
-    @ApiOperation(value = "Сохранить данные аутентификации", notes = "Сохраняет в базу логин и пароль для доступа к API zway сервера для контроллера с именем 'apiKey'", consumes = "application/json")
+    @ApiOperation(value = "Сохранить данные аутентификации", notes = "Сохраняет в базу логин и пароль для доступа к API zway сервера для контроллера с именем 'apiKey'", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public ResponseEntity<Credential> saveOne(
         @ApiParam(value = "аутентификационные данные (Credential.class)", required = true)

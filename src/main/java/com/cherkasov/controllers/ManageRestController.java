@@ -6,6 +6,8 @@ import com.cherkasov.entities.ClientReference;
 import com.cherkasov.entities.Credential;
 import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataRepository;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,15 @@ public class ManageRestController {
      * @param command
      * @return
      */
+    @ApiOperation(value = "Отправить команду на устройство", notes = "Отправить команду {command} на устройство {device} на контроллере {id}. Доступны команды on и off", produces = "application/json")
     @RequestMapping(value = "/set/{device}/{command}", method = RequestMethod.GET)
-    public String sendCommandToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("command") String command) {
+    public String sendCommandToDevice(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId,
+            @ApiParam(value = "{device} устройство", required = true)
+            @PathVariable("device") String deviceId,
+            @ApiParam(value = "{command} команда для исполнения", required = true)
+            @PathVariable("command") String command) {
 
         log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
 
@@ -50,8 +59,14 @@ public class ManageRestController {
         return dataFromController;
     }
 
+    @ApiOperation(value = "Отправить команду на устройство (комбинированный id)", notes = "Отправить команду {command} на устройство на контроллере, {id} указыватся в виде controller_id::device_id. Доступны команды on и off", produces = "application/json")
     @RequestMapping(value = "/set/{command}", method = RequestMethod.GET)
-    public String sendCommandToDeviceCombine(@PathVariable("id") String controllerDevice, @PathVariable("command") String command) {
+    public String sendCommandToDeviceCombine(
+            @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
+            @PathVariable("id") String controllerDevice,
+            @ApiParam(value = "{command} команда для исполнения", required = true)
+            @PathVariable("command") String command) {
+
         String controllerId = getControllerName(controllerDevice);
         String deviceId = getDeviceName(controllerDevice);
         log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
@@ -61,17 +76,14 @@ public class ManageRestController {
         return dataFromController;
     }
 
-    /**
-     *
-     * @param controllerId
-     * @param deviceId
-     * @param command
-     * @return
-     */
+
     // TODO: 16.05.2018 may be RequestMethod.GET or PUT?
-    @Deprecated
+/*    @Deprecated
     @RequestMapping(value = "/set/{device}/{commandclass}/{value}", method = RequestMethod.GET)
-    public String sendParameterToDevice(@PathVariable("id") String controllerId, @PathVariable("device") String deviceId, @PathVariable("commandclass") String command) {
+    public String sendParameterToDevice(
+            @PathVariable("id") String controllerId,
+            @PathVariable("device") String deviceId,
+            @PathVariable("commandclass") String command) {
 
         log.debug("ControllerId={}, deviceId={}, command={}", controllerId, deviceId, command);
 
@@ -79,7 +91,7 @@ public class ManageRestController {
 //http://192.168.1.56:8083/ZWaveAPI/Run/zway.devices[12].commandClasses[32].Set(255)
         // TODO: 17.05.2018 which API from zwave have to use?
         return "don`t work yet";
-    }
+    }*/
 
 
     private String sendCommandToController(String apiKey, String device, String command) {
