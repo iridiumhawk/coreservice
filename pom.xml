@@ -6,7 +6,7 @@
 
     <groupId>com.cherkasov</groupId>
     <artifactId>core-service</artifactId>
-    <version>0.3.12</version>
+    <version>0.4</version>
     <packaging>war</packaging>
 
     <parent>
@@ -174,6 +174,43 @@
                 <configuration>
                     <mainClass>${start-class}</mainClass>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>3.1.4</version>
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <springmvc>true</springmvc>
+                            <locations>
+                                <location>com.cherkasov.controllers</location>
+                            </locations>
+                            <basePath>/api</basePath>
+                            <info>
+                                <title>Smart Home - REST API</title>
+                                <description>REST API interface and documentation.</description>
+                                <version>v.0.4</version>
+                                <contact>
+                                    <email>hawk_san@mail.ru</email>
+                                    <name>Alexey Cherkasov</name>
+                                </contact>
+                            </info>
+                            <swaggerDirectory>${project.build.directory}/api</swaggerDirectory>
+                            <attachSwaggerArtifact>true</attachSwaggerArtifact>
+                            <swaggerApiReader>com.github.kongchen.swagger.docgen.reader.SpringMvcApiReader</swaggerApiReader>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
