@@ -12,11 +12,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+
 import java.io.IOException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,11 +46,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить список всех значений за все время", notes = "Данные с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/all/{device}", method = RequestMethod.GET)
-    public ResponseEntity<List<TimeSeriesData>> getAllByDeviceId(
-        @ApiParam(value = "{id} контроллера", required = true)
-        @PathVariable("id") String controllerId,
-        @ApiParam(value = "{device} устройства", required = true)
-        @PathVariable("device") String deviceId) {
+    public ResponseEntity<List<TimeSeriesData>> getAllByDeviceId(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "{device} устройства", required = true) @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
         List<TimeSeriesData> allByDeviceId = dataDAO.findAllByDeviceId(deviceId, controllerId);
@@ -60,9 +59,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить список всех значений за все время (комбинированный id)", notes = "Данные с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
     @RequestMapping(value = "/get/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TimeSeriesData>> getAllByDeviceIdCombine(
-        @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
-        @PathVariable("id") String controllerDevice) {
+    public ResponseEntity<List<TimeSeriesData>> getAllByDeviceIdCombine(@ApiParam(value = "{id}::{device} контроллер::устройство", required = true) @PathVariable("id") String controllerDevice) {
 
         String controllerId = getControllerName(controllerDevice);
         String deviceId = getDeviceName(controllerDevice);
@@ -76,11 +73,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить последнее сохраненное значение", notes = "Значение с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
-    public ResponseEntity<?> getLastByDeviceId(
-        @ApiParam(value = "{id} контроллера", required = true)
-        @PathVariable("id") String controllerId,
-        @ApiParam(value = "{device} устройства", required = true)
-        @PathVariable("device") String deviceId) {
+    public ResponseEntity<?> getLastByDeviceId(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "{device} устройства", required = true) @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
@@ -95,9 +88,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить последнее сохраненное значение (комбинированный id)", notes = "Значение с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
     @RequestMapping(value = "/get/last", method = RequestMethod.GET)
-    public ResponseEntity<?> getLastByDeviceIdCombine(
-        @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
-        @PathVariable("id") String controllerDevice) {
+    public ResponseEntity<?> getLastByDeviceIdCombine(@ApiParam(value = "{id}::{device} контроллер::устройство", required = true) @PathVariable("id") String controllerDevice) {
 
         String controllerId = getControllerName(controllerDevice);
         String deviceId = getDeviceName(controllerDevice);
@@ -113,35 +104,31 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить актуальное значение с устройства", notes = "Значение с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/actual/{device}", method = RequestMethod.GET)
-    public ResponseEntity<?> getActualFromControllerByDeviceId(
-        @ApiParam(value = "{id} контроллера", required = true)
-        @PathVariable("id") String controllerId,
-        @ApiParam(value = "{device} устройства", required = true)
-        @PathVariable("device") String deviceId) {
+    public ResponseEntity<?> getActualFromControllerByDeviceId(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "{device} устройства", required = true) @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         String dataFromController = getDataFromController(controllerId, deviceId);
-        log.debug("dataFromController: {}", dataFromController);
+
+        log.trace("dataFromController: {}", dataFromController);
 
         if (dataFromController == null) {
             return noContent();
         }
         // TODO: 13.05.2018 save to base or return as is?
-        // TODO: 20.05.2018 parse JSON to convenient form?
+        // TODO: 20.05.2018 parse JSON to more convenient form?
         return new ResponseEntity<>(dataFromController, okStatus);
     }
 
     /**
      * Processing ID from combination of controller and device, like "e863d::ZWayVDev_zway_5"
+     *
      * @param controllerDevice combined id for the device
      * @return JSON object with data direct from the device
      */
     @ApiOperation(value = "Получить актуальное значение с устройства (комбинированный id)", notes = "Значение с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
     @RequestMapping(value = "/get/actual", method = RequestMethod.GET)
-    public ResponseEntity<?> getActualFromControllerByDeviceIdCombine(
-        @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
-        @PathVariable("id") String controllerDevice) {
+    public ResponseEntity<?> getActualFromControllerByDeviceIdCombine(@ApiParam(value = "{id}::{device} контроллер::устройство", required = true) @PathVariable("id") String controllerDevice) {
 
         String controllerId = getControllerName(controllerDevice);
         String deviceId = getDeviceName(controllerDevice);
@@ -150,7 +137,7 @@ public class DataRestController {
 
         String dataFromController = getDataFromController(controllerId, deviceId);
 
-        log.debug("dataFromController: {}", dataFromController);
+        log.trace("dataFromController: {}", dataFromController);
 
         // TODO: 18.06.2018 if error (404) from server return empty object
         if (dataFromController == null || isError404(dataFromController)) {
@@ -161,6 +148,7 @@ public class DataRestController {
     }
 
     private boolean isError404(String dataFromController) {
+
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = null;
         try {
@@ -176,13 +164,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Сохранить значение для устройства", notes = "Значение с контроллера {id} и устройства {device}", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/save/{deviceId}", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveData(
-        @ApiParam(value = "{id} контроллера", required = true)
-        @PathVariable("id") String controllerId,
-        @ApiParam(value = "{deviceId} устройства", required = true)
-        @PathVariable("deviceId") String deviceId,
-        @ApiParam(value = "данные с устройства (TimeSeriesData.class)", required = true)
-        @RequestBody TimeSeriesData entity, HttpServletRequest request) {
+    public ResponseEntity<Boolean> saveData(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "{deviceId} устройства", required = true) @PathVariable("deviceId") String deviceId, @ApiParam(value = "данные с устройства (TimeSeriesData.class)", required = true) @RequestBody TimeSeriesData entity, HttpServletRequest request) {
 
         log.debug("ControllerId={}, deviceId={}, body={}", controllerId, deviceId, entity);
 
@@ -198,11 +180,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Сохранить значение для устройства (комбинированный id)", notes = "Значение с контроллера и устройства, {id} указыватся в виде controller_id::device_id", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveDataCombine(
-        @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
-        @PathVariable("id") String controllerDevice,
-        @ApiParam(value = "данные с устройства (TimeSeriesData.class)", required = true)
-        @RequestBody TimeSeriesData entity, HttpServletRequest request) {
+    public ResponseEntity<Boolean> saveDataCombine(@ApiParam(value = "{id}::{device} контроллер::устройство", required = true) @PathVariable("id") String controllerDevice, @ApiParam(value = "данные с устройства (TimeSeriesData.class)", required = true) @RequestBody TimeSeriesData entity, HttpServletRequest request) {
 
         String controllerId = getControllerName(controllerDevice);
         String deviceId = getDeviceName(controllerDevice);
@@ -218,11 +196,7 @@ public class DataRestController {
 
     @ApiOperation(value = "Сохранить значение для устройства", notes = "Значение с контроллера {id} в формате JSON", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/save/json", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveJSONData(
-        @ApiParam(value = "{id} контроллера", required = true)
-        @PathVariable("id") String controllerId,
-        @ApiParam(value = "данные с устройства (String.class)", required = true)
-        @RequestBody String body, HttpServletRequest request) {
+    public ResponseEntity<Boolean> saveJSONData(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "данные с устройства (String.class)", required = true) @RequestBody String body, HttpServletRequest request) {
 
         log.debug("ControllerId={}, body={}", controllerId, body);
 
@@ -236,13 +210,9 @@ public class DataRestController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-   @ApiOperation(value = "Сохранить все значения для устройства (комбинированный id)", notes = "Значения с контроллера и устройства, {id} указыватся в виде controller_id::device_id", consumes = "application/json", produces = "application/json")
+    @ApiOperation(value = "Сохранить все значения для устройства (комбинированный id)", notes = "Значения с контроллера и устройства, {id} указыватся в виде controller_id::device_id", consumes = "application/json", produces = "application/json")
     @RequestMapping(value = "/save/all", method = RequestMethod.POST)
-    public ResponseEntity<Boolean> saveAllData(
-       @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
-       @PathVariable("id") String controllerId,
-       @ApiParam(value = "данные с устройства в виде списка значений (List<TimeSeriesData>)", required = true)
-       @RequestBody List<TimeSeriesData> entity, HttpServletRequest request) {
+    public ResponseEntity<Boolean> saveAllData(@ApiParam(value = "{id}::{device} контроллер::устройство", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "данные с устройства в виде списка значений (List<TimeSeriesData>)", required = true) @RequestBody List<TimeSeriesData> entity, HttpServletRequest request) {
 
         log.debug("ControllerId={}, body={}", controllerId, entity.toString());
 
@@ -256,11 +226,12 @@ public class DataRestController {
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
-  /**
-   * Register new client
-   * @param controllerId controller id
-   * @param request request from client
-   */
+    /**
+     * Register new client
+     *
+     * @param controllerId controller id
+     * @param request      request from client
+     */
     private void registerClient(String controllerId, HttpServletRequest request) {
 
         List<ClientReference> clientReferences = repository.getClientReferenceByApiKey(controllerId);
@@ -272,13 +243,14 @@ public class DataRestController {
         }
     }
 
-  /**
-   * Get data from controller
-   * @param apiKey
-   * @param device
-   * @return
-   * @throws ClientNotFoundException
-   */
+    /**
+     * Get data from controller
+     *
+     * @param apiKey
+     * @param device
+     * @return
+     * @throws ClientNotFoundException
+     */
     private String getDataFromController(String apiKey, String device) throws ClientNotFoundException {
 
         List<ClientReference> clientReference = repository.getClientReferenceByApiKey(apiKey);
@@ -306,16 +278,25 @@ public class DataRestController {
         } else {
             httpHeaders = createHeaders(credentials.get(0).getLogin(), credentials.get(0).getPassword());
         }
-        ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
+        ResponseEntity<String> response;
+
+        try {
+            response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
+        } catch (HttpClientErrorException e) {
+            log.error("Error while send request to client: {}", e.getMessage());
+            return "{}"; // TODO: 20.06.2018 change on another response?
+        }
 
         return response.getBody();
     }
 
     private ResponseEntity<?> response(HttpStatus status, Object result) {
+
         return ResponseEntity.status(status).body(result);
     }
 
     private ResponseEntity<?> noContent() {
+
         return ResponseEntity.status(HttpStatus.OK).header("No-Content", "no data").body("{}");
     }
 }
