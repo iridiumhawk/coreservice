@@ -8,8 +8,11 @@ import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataDAO;
 import com.cherkasov.repositories.DataRepository;
 import com.cherkasov.utils.Helper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -36,6 +39,8 @@ public class DataRestController {
     @Autowired
     private DataRepository repository;
 
+    private final HttpStatus okStatus = HttpStatus.OK;
+
     @ApiOperation(value = "Получить список всех значений за все время", notes = "Данные с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/all/{device}", method = RequestMethod.GET)
     public ResponseEntity<List<TimeSeriesData>> getAllByDeviceId(
@@ -46,11 +51,11 @@ public class DataRestController {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
         List<TimeSeriesData> allByDeviceId = dataDAO.findAllByDeviceId(deviceId, controllerId);
-        HttpStatus status = HttpStatus.OK;
-        if (allByDeviceId == null) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+        if (allByDeviceId == null || allByDeviceId.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+//            return ResponseEntity.notFound();
         }
-        return new ResponseEntity<>(allByDeviceId, HttpStatus.OK);
+        return ResponseEntity.ok(allByDeviceId);
     }
 
     @ApiOperation(value = "Получить список всех значений за все время (комбинированный id)", notes = "Данные с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
@@ -63,16 +68,15 @@ public class DataRestController {
         String deviceId = getDeviceName(controllerDevice);
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
         List<TimeSeriesData> allByDeviceId = dataDAO.findAllByDeviceId(deviceId, controllerId);
-        HttpStatus status = HttpStatus.OK;
-        if (allByDeviceId == null) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.NOT_FOUND);
+        if (allByDeviceId == null || allByDeviceId.isEmpty()) {
+            return new ResponseEntity<>(Collections.emptyList(), okStatus);
         }
-        return new ResponseEntity<>(allByDeviceId, HttpStatus.OK);
+        return ResponseEntity.ok(allByDeviceId);
     }
 
     @ApiOperation(value = "Получить последнее сохраненное значение", notes = "Значение с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
-    public ResponseEntity<TimeSeriesData> getLastByDeviceId(
+    public ResponseEntity<?> getLastByDeviceId(
         @ApiParam(value = "{id} контроллера", required = true)
         @PathVariable("id") String controllerId,
         @ApiParam(value = "{device} устройства", required = true)
@@ -81,17 +85,17 @@ public class DataRestController {
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         TimeSeriesData lastByDeviceId = dataDAO.findLastByDeviceId(deviceId, controllerId);
-        HttpStatus status = HttpStatus.OK;
         if (lastByDeviceId == null) {
+            return noContent();
 //            status = HttpStatus.NO_CONTENT;
-            return new ResponseEntity<>(new TimeSeriesData(), status);
+//            return new ResponseEntity<>(new TimeSeriesData(), status);
         }
-        return new ResponseEntity<>(lastByDeviceId, status);
+        return response(okStatus, lastByDeviceId);
     }
 
     @ApiOperation(value = "Получить последнее сохраненное значение (комбинированный id)", notes = "Значение с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
     @RequestMapping(value = "/get/last", method = RequestMethod.GET)
-    public ResponseEntity<TimeSeriesData> getLastByDeviceIdCombine(
+    public ResponseEntity<?> getLastByDeviceIdCombine(
         @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
         @PathVariable("id") String controllerDevice) {
 
@@ -99,17 +103,17 @@ public class DataRestController {
         String deviceId = getDeviceName(controllerDevice);
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
         TimeSeriesData lastByDeviceId = dataDAO.findLastByDeviceId(deviceId, controllerId);
-        HttpStatus status = HttpStatus.OK;
         if (lastByDeviceId == null) {
 //            status = HttpStatus.NO_CONTENT;
-            lastByDeviceId = new TimeSeriesData();
+//            lastByDeviceId = new TimeSeriesData();
+            return noContent();
         }
-        return new ResponseEntity<>(lastByDeviceId, status);
+        return response(okStatus, lastByDeviceId);
     }
 
     @ApiOperation(value = "Получить актуальное значение с устройства", notes = "Значение с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/actual/{device}", method = RequestMethod.GET)
-    public ResponseEntity<String> getActualFromControllerByDeviceId(
+    public ResponseEntity<?> getActualFromControllerByDeviceId(
         @ApiParam(value = "{id} контроллера", required = true)
         @PathVariable("id") String controllerId,
         @ApiParam(value = "{device} устройства", required = true)
@@ -119,24 +123,22 @@ public class DataRestController {
 
         String dataFromController = getDataFromController(controllerId, deviceId);
 
-        HttpStatus status = HttpStatus.OK;
         if (dataFromController == null) {
-            status = HttpStatus.NO_CONTENT;
-          dataFromController = "";
+            return noContent();
         }
         // TODO: 13.05.2018 save to base or return as is?
         // TODO: 20.05.2018 parse JSON to convenient form?
-        return new ResponseEntity<>(dataFromController, status);
+        return new ResponseEntity<>(dataFromController, okStatus);
     }
 
     /**
-     * Processing ID from combination of controller and device, like "e8639832111cffa939ed53e765ecb17d::ZWayVDev_zway_5-0-49-1"
-     * @param controllerDevice
-     * @return
+     * Processing ID from combination of controller and device, like "e863d::ZWayVDev_zway_5"
+     * @param controllerDevice combined id for the device
+     * @return JSON object with data direct from the device
      */
     @ApiOperation(value = "Получить актуальное значение с устройства (комбинированный id)", notes = "Значение с контроллера и устройства, {id} указыватся в виде controller_id::device_id", produces = "application/json")
     @RequestMapping(value = "/get/actual", method = RequestMethod.GET)
-    public ResponseEntity<String> getActualFromControllerByDeviceIdCombine(
+    public ResponseEntity<?> getActualFromControllerByDeviceIdCombine(
         @ApiParam(value = "{id}::{device} контроллер::устройство", required = true)
         @PathVariable("id") String controllerDevice) {
 
@@ -146,13 +148,27 @@ public class DataRestController {
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         String dataFromController = getDataFromController(controllerId, deviceId);
-        HttpStatus status = HttpStatus.OK;
+
         // TODO: 18.06.2018 if error (404) from server return empty object
-        if (dataFromController == null) {
-            status = HttpStatus.NO_CONTENT;
+        if (dataFromController == null || isError404(dataFromController)) {
+            return noContent();
         }
 
-        return new ResponseEntity<>(dataFromController, status);
+        return new ResponseEntity<>(dataFromController, okStatus);
+    }
+
+    private boolean isError404(String dataFromController) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = null;
+        try {
+            root = mapper.readTree(dataFromController);
+        } catch (IOException e) {
+            log.error("cannot parse json with status");
+            return false;
+        }
+        String status = root.get("status").asText();
+
+        return status.equalsIgnoreCase("500") || status.equalsIgnoreCase("404");
     }
 
     @ApiOperation(value = "Сохранить значение для устройства", notes = "Значение с контроллера {id} и устройства {device}", consumes = "application/json", produces = "application/json")
@@ -167,7 +183,7 @@ public class DataRestController {
 
         log.debug("ControllerId={}, deviceId={}, body={}", controllerId, deviceId, entity);
 
-        // TODO: 13.05.2018 make cash here
+        // TODO: 13.05.2018 make cache here
 
         //if client does`not registered then register him
         registerClient(controllerId, request);
@@ -207,7 +223,7 @@ public class DataRestController {
 
         log.debug("ControllerId={}, body={}", controllerId, body);
 
-        // TODO: 13.05.2018 make cash here
+        // TODO: 13.05.2018 make cache here
 
         //if client does`not registered then register him
         registerClient(controllerId, request);
@@ -227,7 +243,7 @@ public class DataRestController {
 
         log.debug("ControllerId={}, body={}", controllerId, entity.toString());
 
-        // TODO: 13.05.2018 make cash here
+        // TODO: 13.05.2018 make cache here
 
         //if client does`not registered then register him
         registerClient(controllerId, request);
@@ -239,8 +255,8 @@ public class DataRestController {
 
   /**
    * Register new client
-   * @param controllerId
-   * @param request
+   * @param controllerId controller id
+   * @param request request from client
    */
     private void registerClient(String controllerId, HttpServletRequest request) {
 
@@ -290,5 +306,13 @@ public class DataRestController {
         ResponseEntity<String> response = restTemplate.exchange(clientURL, HttpMethod.GET, new HttpEntity<String>(httpHeaders), String.class);
 
         return response.getBody();
+    }
+
+    private ResponseEntity<?> response(HttpStatus status, Object result) {
+        return ResponseEntity.status(status).body(result);
+    }
+
+    private ResponseEntity<?> noContent() {
+        return ResponseEntity.status(HttpStatus.OK).header("No-Content", "no data").body("{}");
     }
 }
