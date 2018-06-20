@@ -6,7 +6,7 @@
 
     <groupId>com.cherkasov</groupId>
     <artifactId>core-service</artifactId>
-    <version>0.4</version>
+    <version>0.4.2</version>
     <packaging>war</packaging>
 
     <parent>

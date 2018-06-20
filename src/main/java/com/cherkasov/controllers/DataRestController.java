@@ -122,6 +122,7 @@ public class DataRestController {
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         String dataFromController = getDataFromController(controllerId, deviceId);
+        log.debug("dataFromController: {}", dataFromController);
 
         if (dataFromController == null) {
             return noContent();
@@ -148,6 +149,8 @@ public class DataRestController {
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         String dataFromController = getDataFromController(controllerId, deviceId);
+
+        log.debug("dataFromController: {}", dataFromController);
 
         // TODO: 18.06.2018 if error (404) from server return empty object
         if (dataFromController == null || isError404(dataFromController)) {
