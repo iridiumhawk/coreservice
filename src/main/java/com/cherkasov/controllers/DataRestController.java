@@ -140,7 +140,7 @@ public class DataRestController {
         log.trace("dataFromController: {}", dataFromController);
 
         // TODO: 18.06.2018 if error (404) from server return empty object
-        if (dataFromController == null || isError404(dataFromController)) {
+        if (dataFromController == null ) { //|| isError404(dataFromController)
             return noContent();
         }
 
