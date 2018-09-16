@@ -73,7 +73,11 @@ public class DataRestController {
 
     @ApiOperation(value = "Получить последнее сохраненное значение", notes = "Значение с контроллера {id} и устройства {device}", produces = "application/json")
     @RequestMapping(value = "/get/last/{device}", method = RequestMethod.GET)
-    public ResponseEntity<?> getLastByDeviceId(@ApiParam(value = "{id} контроллера", required = true) @PathVariable("id") String controllerId, @ApiParam(value = "{device} устройства", required = true) @PathVariable("device") String deviceId) {
+    public ResponseEntity<?> getLastByDeviceId(
+            @ApiParam(value = "{id} контроллера", required = true)
+            @PathVariable("id") String controllerId,
+            @ApiParam(value = "{device} устройства", required = true)
+            @PathVariable("device") String deviceId) {
 
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
