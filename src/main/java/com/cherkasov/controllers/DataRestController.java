@@ -3,6 +3,7 @@ package com.cherkasov.controllers;
 import com.cherkasov.Configuration;
 import com.cherkasov.entities.ClientReference;
 import com.cherkasov.entities.Credential;
+import com.cherkasov.entities.Event;
 import com.cherkasov.entities.TimeSeriesData;
 import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataDAO;
@@ -178,6 +179,10 @@ public class DataRestController {
         registerClient(controllerId, request);
 
         dataDAO.insert(entity, controllerId);
+
+        Event event = new Event(controllerId, deviceId, "", entity.getValue(), entity.getUpdateTime());
+
+        sendToSubscriber(event);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
