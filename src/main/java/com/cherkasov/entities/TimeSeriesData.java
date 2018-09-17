@@ -2,6 +2,7 @@ package com.cherkasov.entities;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
@@ -10,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Setter
 @Getter
+@NoArgsConstructor
 @ToString
 @Document
 //@JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,9 +25,5 @@ public class TimeSeriesData {
     @Field("updatetime")
     @JsonProperty("updatetime")
     private Long updateTime;
-
-    public TimeSeriesData() {
-
-    }
 
 }

@@ -48,7 +48,7 @@ public class Helper {
         if (split.length > 1) {
             return split[0];
         }
-        return "";
+        return controllerDevice;
     }
 
     @Deprecated
