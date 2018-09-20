@@ -39,6 +39,18 @@ public class AbstractDAO<T> {
     if (byName != null) {
       entity.setId(byName.getId());
       this.operations.findAndModify();
+      /*Query query6 = new Query();
+		query6.addCriteria(Criteria.where("name").is("appleF"));
+
+		Update update6 = new Update();
+		update6.set("age", 101);
+		update6.set("ic", 1111);
+
+		//FindAndModifyOptions().returnNew(true) = newly updated document
+		//FindAndModifyOptions().returnNew(false) = old document (not update yet)
+		User userTest6 = mongoOperation.findAndModify(
+				query6, update6,
+				new FindAndModifyOptions().returnNew(true), User.class);*/
       this.operations.save(entity, collection);
     } else {
       insert(entity, collection);
