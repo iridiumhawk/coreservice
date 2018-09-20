@@ -6,7 +6,7 @@
 
     <groupId>com.cherkasov</groupId>
     <artifactId>core-service</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.1</version>
     <packaging>war</packaging>
     <description>https://github.com/iridiumhawk/coreservice.git</description>
 
