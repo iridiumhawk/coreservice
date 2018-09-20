@@ -1,6 +1,5 @@
 package com.cherkasov.repositories;
 
-import com.cherkasov.entities.Device;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
@@ -17,10 +16,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AbstractDAO<T> {
 
-  private String entityClassName; // = "com.cherkasov.entities.Device"
   @Autowired
   private MongoOperations operations;
   private Class<?> entityClass;
+  private String entityClassName; // = "com.cherkasov.entities.Device"
 
   void setEntityClassName(String className) {
     this.entityClassName = className;
@@ -39,6 +38,7 @@ public class AbstractDAO<T> {
     T byName = findByName(entity.getName(), collection);
     if (byName != null) {
       entity.setId(byName.getId());
+      this.operations.findAndModify();
       this.operations.save(entity, collection);
     } else {
       insert(entity, collection);

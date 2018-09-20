@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Entity for store credential in database.
+ * Entity for store controller`s credential in database.
  */
 @NamedQueries(value = {
     @NamedQuery(name = "Credential.getById", query = "SELECT cred FROM Credential cred WHERE cred.apiKey = :apikey"),
