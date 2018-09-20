@@ -1,8 +1,7 @@
 package com.cherkasov.controllers;
 
-import com.cherkasov.entities.ClientReference;
 import com.cherkasov.entities.ClientSubscription;
-import com.cherkasov.repositories.DataRepository;
+import com.cherkasov.services.SubscriptionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
@@ -14,14 +13,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/subscribe/{id}")
 public class SubscribeRestController {
-    @Autowired
-    private DataRepository repository;
+
+  @Autowired
+  private SubscriptionService service;
 
     private final HttpStatus okStatus = HttpStatus.OK;
 
 
     /***
-
+      Subscribes client on event form device
      */
     @ApiOperation(value = "Подписаться на события", notes = "Подписаться на событие на устройстве {device} на контроллере {id}.", produces = "application/json", consumes = "application/json")
     @RequestMapping(value = "/enable/{device}", method = RequestMethod.POST)
@@ -35,7 +35,7 @@ public class SubscribeRestController {
 
         log.debug("ControllerId={}, deviceId={}, subscription={}", controllerId, deviceId, entity);
 
-        // TODO: 16.09.2018 make processing
+        service.addSubscription(entity);
 
         return new ResponseEntity<>("", okStatus);
     }
@@ -52,7 +52,7 @@ public class SubscribeRestController {
 
         log.debug("ControllerId={}, deviceId={}, subscription={}", controllerId, deviceId, entity);
 
-        // TODO: 16.09.2018 make processing
+        service.updateSubscription(entity);
 
         return new ResponseEntity<>("", okStatus);
     }

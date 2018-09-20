@@ -18,7 +18,7 @@ public class ClientSubscription {
     @JsonProperty("sensorid")
     private String sensorId;
     @JsonProperty("value")
-    private List<String> value; // TODO: 17.09.2018 make List of values
+    private List<String> value;
     @JsonProperty("starttime")
     private Long startTime;
     @JsonProperty("endtime")

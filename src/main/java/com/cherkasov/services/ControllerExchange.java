@@ -16,6 +16,7 @@ import java.util.List;
 
 import static com.cherkasov.utils.Helper.createHeaders;
 
+@Deprecated
 public class ControllerExchange {
 
 //    @Autowired

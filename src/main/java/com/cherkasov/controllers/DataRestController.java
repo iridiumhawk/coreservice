@@ -8,6 +8,7 @@ import com.cherkasov.entities.TimeSeriesData;
 import com.cherkasov.exceptions.ClientNotFoundException;
 import com.cherkasov.repositories.DataDAO;
 import com.cherkasov.repositories.DataRepository;
+import com.cherkasov.services.SubscriptionService;
 import com.cherkasov.utils.Helper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +39,9 @@ public class DataRestController {
 
     @Autowired
     private DataDAO dataDAO;
+
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     // TODO: 13.05.2018 change to service
     @Autowired
@@ -182,7 +186,7 @@ public class DataRestController {
 
         Event event = new Event(controllerId, deviceId, "", entity.getValue(), entity.getUpdateTime());
 
-        sendToSubscriber(event);
+        subscriptionService.fireEvent(event);
 
         return new ResponseEntity<>(true, HttpStatus.OK);
     }
