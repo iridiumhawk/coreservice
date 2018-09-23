@@ -3,8 +3,10 @@ package com.cherkasov.repositories;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
+
 import java.util.List;
 import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -14,31 +16,29 @@ import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-public class AbstractDAO<T> {
+public abstract class AbstractDAO<T> {
 
-  @Autowired
-  private MongoOperations operations;
-  private Class<?> entityClass;
-  private String entityClassName; // = "com.cherkasov.entities.Device"
+    @Autowired
+    private MongoOperations operations;
 
-  void setEntityClassName(String className) {
-    this.entityClassName = className;
-  }
+    public AbstractDAO() {
 
-  void setClass(Class<?> clazz) {
-    this.entityClass = clazz;
-  }
+    }
 
-  public void insert(T device, String collection) {
-    this.operations.insert(device, collection);
-  }
+    public abstract Class<T> getGenericType();
 
-  // TODO: 26.05.2018 make more simple
-  public void update(T entity, String collection) {
-    T byName = findByName(entity.getName(), collection);
-    if (byName != null) {
-      entity.setId(byName.getId());
-      this.operations.findAndModify();
+    public void insert(T value, String collection) {
+        this.operations.insert(value, collection);
+    }
+
+    // TODO: 26.05.2018 make more simple
+    public void update(T entity, String collection) {
+        this.operations.save(entity, collection);
+//        T byName = findByName(entity.getName(), collection);
+//        if (byName != null) {
+//            entity.setId(byName.getId());
+//            this.operations.findAndModify();
+
       /*Query query6 = new Query();
 		query6.addCriteria(Criteria.where("name").is("appleF"));
 
@@ -51,74 +51,87 @@ public class AbstractDAO<T> {
 		User userTest6 = mongoOperation.findAndModify(
 				query6, update6,
 				new FindAndModifyOptions().returnNew(true), User.class);*/
-      this.operations.save(entity, collection);
-    } else {
-      insert(entity, collection);
+//            this.operations.save(entity, collection);
+//        } else {
+//            insert(entity, collection);
+//        }
     }
-  }
 
-  public void updateAll(List<T> devices, String collection) {
-    for (T deviceUpdate : devices) {
-      update(deviceUpdate, collection);
+    public void updateAll(List<T> values, String collection) {
+
+        for (T valueToUpdate : values) {
+            update(valueToUpdate, collection);
+        }
     }
-  }
 
-  public T findByName(String entity, String collection, Class<T> clazz) {
-    Query query = new Query(Criteria.where("name").is(entity));
-    return this.operations.findOne(query, clazz, collection);
-  }
+    public T findByField(String fieldName, String fieldValue, String collection) {
 
-  // TODO: 27.05.2018 while searching dont take class name in consideration !!!  simple return result as this class
-
-  public List<T> getAll(String collection, Class<T> clazz) {
-    Query query = new Query(Criteria.where("_class").is(entityClassName));
-    List<T> all = this.operations.find(query, clazz, collection);
-    return all;
-  }
-
-  public int deleteByName(String device, String collection, Class<T> clazz) {
-    Query query = new Query(Criteria.where("name").is(device));
-    WriteResult result = this.operations.remove(query, clazz, collection);
-    return result.getN();
-  }
-
-
-  public List<T> deleteAll(String collection, Class<T> clazz) {
-    Query query = new Query(Criteria.where("_class").is(entityClassName));
-    List<T> remove = this.operations.findAllAndRemove(query, clazz, collection);
-    log.trace("Removed devices:\n{}", remove);
-    return remove;
-  }
-
-  public List<T> deleteAllNull(String collection, Class<T> clazz) {
-    Query query = new Query(Criteria.where("name").is(null).andOperator(Criteria.where("_class").is(
-        entityClassName)));
-    List<T> remove = this.operations.findAllAndRemove(query, clazz, collection);
-    log.trace("Removed devices:\n{}", remove);
-    return remove;
-  }
-
-  public void insertJson(String json, String collection) {
-    DBObject dbObject = (DBObject) JSON.parse(json);
-    this.operations.insert(dbObject, collection);
-  }
-
-  public void insertAll(List<T> devices, String collection) {
-    for (T device : devices) {
-      this.operations.save(device, collection);
+        Query query = new Query(Criteria.where(fieldName).is(fieldValue));
+        return this.operations.findOne(query, getGenericType(), collection);
     }
-  }
 
-  public boolean dropCollectionIfExist(String collection) {
-    if (operations.collectionExists(collection)) {
-      operations.dropCollection(collection);
-      log.info("Collection dropped");
-      return true;
+    // TODO: 27.05.2018 while searching dont take class name in consideration !!!  simple return result as this class
+
+    public List<T> getAll(String collection) {
+
+        Query query = new Query(Criteria.where("_class").is(getGenericType().getName()));
+        return this.operations.find(query, getGenericType(), collection);
     }
-    return false;
-  }
 
-  public Set<String> getAllControllersName() {
-    return operations.getCollectionNames();
-  }
+    public List<T> getAllByField(String fieldName, String fieldValue, String collection) {
+        Query query = new Query(Criteria.where(fieldName).is(fieldValue).andOperator(Criteria.where("_class").is(getGenericType().getName())));
+        return this.operations.find(query, getGenericType(), collection);
+    }
+
+    public int deleteByField(String fieldName, String fieldValue, String collection) {
+
+        Query query = new Query(Criteria.where(fieldName).is(fieldValue));
+        WriteResult result = this.operations.remove(query, getGenericType(), collection);
+        return result.getN();
+    }
+
+
+    public List<T> deleteAll(String collection) {
+
+        Query query = new Query(Criteria.where("_class").is(getGenericType().getName()));
+        List<T> remove = this.operations.findAllAndRemove(query, getGenericType(), collection);
+        log.trace("Removed devices:\n{}", remove);
+        return remove;
+    }
+
+    public List<T> deleteAllNullbyField(String fieldName, String collection) {
+
+        Query query = new Query(Criteria.where(fieldName).is(null).andOperator(Criteria.where("_class").is(getGenericType().getName())));
+        List<T> remove = this.operations.findAllAndRemove(query, getGenericType(), collection);
+        log.trace("Removed devices:\n{}", remove);
+        return remove;
+    }
+
+    public void insertJson(String json, String collection) {
+
+        DBObject dbObject = (DBObject) JSON.parse(json);
+        this.operations.insert(dbObject, collection);
+    }
+
+    public void insertAll(List<T> values, String collection) {
+//        this.operations.insertAll();
+        for (T value : values) {
+            this.operations.save(value, collection);
+        }
+    }
+
+    public boolean dropCollectionIfExist(String collection) {
+
+        if (operations.collectionExists(collection)) {
+            operations.dropCollection(collection);
+            log.info("Collection dropped");
+            return true;
+        }
+        return false;
+    }
+
+    public Set<String> getAllControllersName() {
+
+        return operations.getCollectionNames();
+    }
 }
