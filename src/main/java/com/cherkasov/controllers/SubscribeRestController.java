@@ -19,7 +19,6 @@ public class SubscribeRestController {
 
     private final HttpStatus okStatus = HttpStatus.OK;
 
-
     /***
       Subscribes client on event form device
      */
@@ -69,6 +68,7 @@ public class SubscribeRestController {
         log.debug("ControllerId={}, deviceId={}", controllerId, deviceId);
 
         // TODO: 16.09.2018 make processing
+        service.removeSubscriptionDevice(controllerId, deviceId);
 
         return new ResponseEntity<>("", okStatus);
     }
@@ -82,8 +82,8 @@ public class SubscribeRestController {
         log.debug("ControllerId={}", controllerId);
 
         // TODO: 16.09.2018 make processing
+        service.removeAllSubscription(controllerId);
 
         return new ResponseEntity<>("", okStatus);
     }
-
 }
