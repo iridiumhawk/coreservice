@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Repository for database.
+ * Repository for SQL database.
  *
  */
 @Slf4j

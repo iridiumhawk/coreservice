@@ -16,8 +16,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 @Slf4j
+@Repository
 public class DeviceDAOImpl implements DeviceDAO {
 
     @Autowired
