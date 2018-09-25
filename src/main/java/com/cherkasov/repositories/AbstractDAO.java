@@ -1,5 +1,7 @@
 package com.cherkasov.repositories;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -31,14 +34,18 @@ public abstract class AbstractDAO<T> {
         this.operations.insert(value, collection);
     }
 
-    // TODO: 26.05.2018 make more simple
-    public void update(T entity, String collection) {
-        this.operations.save(entity, collection);
+    public WriteResult update(String fieldName, String fieldValue, T entity, String collection) {
+        DBObject newEntity = BasicDBObject.parse(JSON.serialize(entity));
+        Update update = Update.fromDBObject(newEntity);
+        Query query = new Query(Criteria.where(fieldName).is(fieldValue).andOperator(Criteria.where("_class").is(getGenericType().getName())));
+        return this.operations.updateFirst(query, update, entity.getClass(), collection);
+
+//        this.operations.save(entity, collection);
+
 //        T byName = findByName(entity.getName(), collection);
 //        if (byName != null) {
 //            entity.setId(byName.getId());
-//            this.operations.findAndModify();
-
+//        this.operations.findAndModify(query, update, entity.getClass());
       /*Query query6 = new Query();
 		query6.addCriteria(Criteria.where("name").is("appleF"));
 
@@ -57,10 +64,10 @@ public abstract class AbstractDAO<T> {
 //        }
     }
 
-    public void updateAll(List<T> values, String collection) {
+    public void updateAll(String fieldName, String fieldValue, List<T> values, String collection) {
 
         for (T valueToUpdate : values) {
-            update(valueToUpdate, collection);
+            update(fieldName, fieldValue, valueToUpdate, collection);
         }
     }
 
@@ -89,7 +96,6 @@ public abstract class AbstractDAO<T> {
         WriteResult result = this.operations.remove(query, getGenericType(), collection);
         return result.getN();
     }
-
 
     public List<T> deleteAll(String collection) {
 
