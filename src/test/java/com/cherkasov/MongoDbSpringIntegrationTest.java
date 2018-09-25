@@ -1,5 +1,8 @@
 package com.cherkasov;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
@@ -52,6 +55,6 @@ public class MongoDbSpringIntegrationTest {
         mongoTemplate.save(objectToSave, "collection");
 
         // then
-//        assertThat(mongoTemplate.findAll(DBObject.class, "collection")).extracting("key").containsOnly("value");
+        assertThat(mongoTemplate.findAll(DBObject.class, "collection"), hasSize(1));
     }
 }
