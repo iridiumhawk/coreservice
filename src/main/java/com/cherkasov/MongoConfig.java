@@ -49,7 +49,6 @@ public class MongoConfig extends AbstractMongoConfiguration {
 
         return new MongoClient(new ServerAddress("localhost" , 27017), options);
 
-//        return new MongoClient("localhost", 27017);
     }
 
     @Override

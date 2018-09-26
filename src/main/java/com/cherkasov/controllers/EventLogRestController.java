@@ -1,7 +1,6 @@
 package com.cherkasov.controllers;
 
 import com.cherkasov.entities.EventLog;
-import com.cherkasov.repositories.AbstractDAO;
 import com.cherkasov.repositories.EventLogDAO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
