@@ -1,7 +1,7 @@
 package com.cherkasov.repositories;
 
+import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
 import com.mongodb.util.JSON;
@@ -28,17 +28,30 @@ public abstract class AbstractDAO<T> {
 
     }
 
+    public AbstractDAO(MongoOperations operations) {
+
+        this.operations = operations;
+    }
+
     public abstract Class<T> getGenericType();
 
     public void insert(T value, String collection) {
         this.operations.insert(value, collection);
     }
 
+    public void save(T value, String collection) {
+        this.operations.save(value, collection);
+    }
+
     public WriteResult update(String fieldName, String fieldValue, T entity, String collection) {
-        DBObject newEntity = BasicDBObject.parse(JSON.serialize(entity));
+        Gson gson = new Gson();
+        DBObject newEntity = BasicDBObject.parse(gson.toJson(entity));// TODO: 27.09.2018 field _class is absent on JSON parsing
+        log.info("DBObject: {}", newEntity);
         Update update = Update.fromDBObject(newEntity);
+        log.info("Update: {}", update);
+
         Query query = new Query(Criteria.where(fieldName).is(fieldValue).andOperator(Criteria.where("_class").is(getGenericType().getName())));
-        return this.operations.updateFirst(query, update, entity.getClass(), collection);
+         return this.operations.upsert(query, update, entity.getClass(), collection);
 
 //        this.operations.save(entity, collection);
 

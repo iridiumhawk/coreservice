@@ -2,14 +2,17 @@ package com.cherkasov.repositories;
 
 import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
+@Component
 public class SubscribeCacheInMemory implements SubscribeCache {
     //ControllerId, ClientSubscription
     private Map<String, List<ClientSubscription>> cache = new ConcurrentHashMap<>();
