@@ -1,5 +1,4 @@
 package com.cherkasov;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -16,12 +15,20 @@ import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 
-
+@RunWith(SpringRunner.class)
+@DataMongoTest
 public class MongoDbSpringIntegrationTest {
+    @Autowired
     private MongodExecutable mongodExecutable;
+    @Autowired
     private MongoTemplate mongoTemplate;
+/*
 
     @After
     public void clean() {
@@ -42,6 +49,7 @@ public class MongoDbSpringIntegrationTest {
         mongodExecutable.start();
         mongoTemplate = new MongoTemplate(new MongoClient(ip, port), "test");
     }
+*/
 
 
     @Test
