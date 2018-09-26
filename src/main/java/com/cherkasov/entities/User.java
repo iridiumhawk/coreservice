@@ -6,6 +6,8 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,13 +15,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 //@Entity
 @Getter
 @Setter
+@ToString
 //@Table(name = "users")
 @Document(collection = "users")
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    private Integer id;
+//    private Integer id;
+    private ObjectId _id;
     private String login;
     private String password;
     private String email;
