@@ -5,12 +5,11 @@ import com.cherkasov.channel.ChannelFactory;
 import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
 import com.cherkasov.entities.EventLog;
+import com.cherkasov.repositories.EventLogDAO;
 import com.cherkasov.repositories.SubscribeCacheInMemory;
-import com.cherkasov.repositories.SubscribeDAO;
 import com.cherkasov.repositories.SubscribeDAOImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,18 +21,21 @@ import java.util.List;
 public class SubscriptionService implements Subscription {
 
     @Autowired
-    private SubscribeDAOImpl dao;
+    private SubscribeDAOImpl subscribeDAO;
+
+    @Autowired
+    private EventLogDAO logDAO;
 
     @Autowired
     private SubscribeCacheInMemory cache;
 
-    private String collection = "subscription";
+    private String collection = "subscription"; // TODO: 28.09.2018 ??? WTF
 
     @Override
     public void addSubscription(ClientSubscription entity) {
-        //dao.save
+        //subscribeDAO.save
         // TODO: 22.09.2018 make processing with database
-        dao.insert(entity, collection);
+        subscribeDAO.insert(entity, collection);
 
         //cache.add
         entity.setNotificationChannel(makeChannels(entity));
@@ -42,20 +44,20 @@ public class SubscriptionService implements Subscription {
 
     @Override
     public void updateSubscription(ClientSubscription entity) {
-
+        subscribeDAO.update("controllerid", entity.getControllerId(), entity, collection); // TODO: 28.09.2018 ???
         entity.setNotificationChannel(makeChannels(entity));
         cache.update(entity);
     }
 
     @Override
     public void removeSubscriptionDevice(String controllerId, String deviceId) {
-
+        subscribeDAO.deleteByField("deviceid", deviceId, collection); // TODO: 28.09.2018 ??? removes all devices
         cache.delete(controllerId, deviceId);
     }
 
     @Override
     public void removeAllSubscription(String controllerId) {
-
+        subscribeDAO.deleteByField("controllerid", controllerId, collection);
         cache.deleteAll(controllerId);
     }
 
@@ -68,10 +70,10 @@ public class SubscriptionService implements Subscription {
         for (ClientSubscription clientSubscription : clientSubscriptions) {
             for (Channel channel : clientSubscription.getNotificationChannel()) {
                 channel.fire(event, clientSubscription);
-                // TODO: 23.09.2018 save log
-                EventLog eventLog = new EventLog(event.getDeviceId(), event.getSensorId(), event.getValue(), event.getUpdateTime(), LocalDateTime.now().toString());
-//                logDao.save(event.getControllerId(), eventLog);
             }
+            //save log after event fired
+            EventLog eventLog = new EventLog(event.getDeviceId(), event.getSensorId(), event.getValue(), event.getUpdateTime(), LocalDateTime.now().toString());
+            logDAO.save(eventLog, event.getControllerId());
         }
     }
 
