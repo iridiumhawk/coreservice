@@ -18,6 +18,6 @@ public class EmailServiceTest {
 
   @Test
   public void test() {
-    service.sendSimpleMessage("test@mail.ru", "event", "event fired");
+    service.sendSimpleMessage("hawk_san@mail.ru", "event", "event fired");
   }
 }

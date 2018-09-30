@@ -1,12 +1,7 @@
 package com.cherkasov;
 
-import com.cherkasov.entities.Device;
 import com.cherkasov.entities.EventLog;
 import com.cherkasov.repositories.EventLogDAO;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.WriteResult;
-import com.mongodb.util.JSON;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +75,7 @@ public class DAOTest {
         System.out.println(logDAO.getAll(collection));
         EventLog entity = getEntity();
         entity.setValue("on");
-        WriteResult result = logDAO.update("deviceId", "123", entity, collection);
+        EventLog result = logDAO.update("deviceId", "123", entity, collection);
         System.out.println(result);
         List<EventLog> all = logDAO.getAll(collection);
         System.out.println(all);
@@ -100,9 +95,4 @@ public class DAOTest {
         return eventLog;
     }
 
-    @Test
-    public void json() {
-
-        DBObject newEntity = BasicDBObject.parse(JSON.serialize(new Device()));
-    }
 }
