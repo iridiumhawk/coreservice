@@ -22,7 +22,7 @@ public class SMSChannel extends AbstractChannel implements Channel {
     }
 
     @Override
-    public void fire(Event event, ClientSubscription subscription) {
+    public void fire(final Event event, final ClientSubscription subscription) {
 
         String message = subscription.getMessage();
         if (message != null) {

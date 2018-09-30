@@ -9,7 +9,7 @@ public class ChannelFactory {
 
         String[] split = channelDescription.split("=");
         if (split.length >= 2) {
-            channelEnum = Channels.valueOf(split[0]);
+            channelEnum = Channels.valueOf(split[0].trim().toUpperCase());
             destination = new Destination();
             destination.setEndPoint(split[1]);
         }
