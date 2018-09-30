@@ -184,7 +184,12 @@ public class DataRestController {
 
         dataDAO.insert(entity, controllerId);
 
-        Event event = new Event(controllerId, deviceId, "", entity.getValue(), entity.getUpdateTime());
+        String sensorId = "";
+        String[] split = deviceId.split("-");
+        if (split.length > 1){
+            sensorId = split[split.length - 1];
+        }
+        Event event = new Event(controllerId, deviceId, sensorId, entity.getValue(), entity.getUpdateTime());
 
         subscriptionService.fireEvent(event);
 
