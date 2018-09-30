@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class SubscribeCacheInMemory implements SubscribeCache {
     //ControllerId, ClientSubscription
-    private Map<String, List<ClientSubscription>> cache = new ConcurrentHashMap<>();
+    private final Map<String, List<ClientSubscription>> cache = new ConcurrentHashMap<>();
 
     public SubscribeCacheInMemory() {
         //todo load subscription form DB on application start
@@ -25,38 +26,50 @@ public class SubscribeCacheInMemory implements SubscribeCache {
     public void add(ClientSubscription subscription) {
 
         // TODO: 22.09.2018 make simple
-        List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
+        final List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
         if (clientSubscriptions != null) {
             clientSubscriptions.add(subscription);
+            cache.put(subscription.getControllerId(), clientSubscriptions);
         } else {
-            clientSubscriptions = new ArrayList<>();
-            clientSubscriptions.add(subscription);
+            List<ClientSubscription> newClientSubscriptions = new ArrayList<>();
+            newClientSubscriptions.add(subscription);
+            cache.put(subscription.getControllerId(), newClientSubscriptions);
         }
-        cache.put(subscription.getControllerId(), clientSubscriptions);
 //        cache.compute(subscription.getControllerId(), subscription);
     }
 
     @Override
     public void update(ClientSubscription subscription) {
 
-        List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
+        final List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
+        if (clientSubscriptions == null) {
+            return;
+        }
 //        clientSubscriptions.stream().filter(cl -> cl.equals(subscription)).;
-        for (ClientSubscription clientSubscription : clientSubscriptions) {
-            if (clientSubscription.equals(subscription)) {
-                //todo update value
+        synchronized (this) {
+            for (int i = 0; i < clientSubscriptions.size(); i++) {
+                if (clientSubscriptions.get(i).equals(subscription)) {
+                    clientSubscriptions.set(i, subscription);
+                }
             }
         }
     }
 
     @Override
     public void delete(String controllerId, String deviceId) {
+
         List<ClientSubscription> clientSubscriptions = cache.get(controllerId);
+        if (clientSubscriptions == null) {
+            return;
+        }
         List<ClientSubscription> collect = clientSubscriptions.stream().filter(cl -> cl.getDeviceId().equalsIgnoreCase(deviceId)).collect(Collectors.toList());
+
         clientSubscriptions.removeAll(collect);
     }
 
     @Override
     public void deleteAll(String controllerId) {
+
         cache.remove(controllerId);
     }
 
@@ -64,9 +77,10 @@ public class SubscribeCacheInMemory implements SubscribeCache {
     public List<ClientSubscription> get(Event event) {
         //returns subscription that coincidence with event
         List<ClientSubscription> clientSubscriptions = cache.get(event.getControllerId());
-        List<ClientSubscription> collect = clientSubscriptions.stream().filter(cl -> cl.getDeviceId().equalsIgnoreCase(event.getDeviceId()) && cl.getSensorId().equalsIgnoreCase(event.getSensorId())).collect(Collectors.toList());
-        // TODO: 22.09.2018 checking values
-
-        return collect;
+        if (clientSubscriptions == null) {
+            return Collections.emptyList();
+        }
+        return clientSubscriptions.stream().filter(cl -> cl.getDeviceId().equalsIgnoreCase(event.getDeviceId()) && cl.getSensorId().equalsIgnoreCase(event.getSensorId())).collect(Collectors.toList());
+        // TODO: 22.09.2018 checking values for alarm
     }
 }
