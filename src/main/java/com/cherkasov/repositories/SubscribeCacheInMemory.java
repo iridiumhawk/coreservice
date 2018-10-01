@@ -80,6 +80,7 @@ public class SubscribeCacheInMemory implements SubscribeCache {
         //returns subscription that coincidence with event
         List<ClientSubscription> clientSubscriptions = cache.get(event.getControllerId());
         if (clientSubscriptions == null) {
+            log.debug("subscriptions in cache is empty");
             return Collections.emptyList();
         }
         return clientSubscriptions.stream().filter(cl -> cl.getDeviceId().equalsIgnoreCase(event.getDeviceId()) && cl.getSensorId().equalsIgnoreCase(event.getSensorId())).collect(Collectors.toList());

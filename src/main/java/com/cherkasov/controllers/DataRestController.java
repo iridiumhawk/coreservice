@@ -251,7 +251,7 @@ public class DataRestController {
      * @param request      request from client
      */
     private void registerClient(String controllerId, HttpServletRequest request) {
-
+        // TODO: 02.10.2018 make cache here
         List<ClientReference> clientReferences = repository.getClientReferenceByApiKey(controllerId);
         if (clientReferences == null || clientReferences.isEmpty()) {
             ClientReference clientReference = new ClientReference();

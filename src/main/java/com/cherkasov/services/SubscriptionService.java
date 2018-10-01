@@ -1,7 +1,5 @@
 package com.cherkasov.services;
 
-import com.cherkasov.channel.Channel;
-import com.cherkasov.channel.ChannelFactory;
 import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
 import com.cherkasov.repositories.SubscribeCacheInMemory;
@@ -10,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -67,12 +64,15 @@ public class SubscriptionService implements Subscription {
 
     @Override
     public void fireEvent(Event event) {
+        log.debug("Find subscription in cache for event : {}", event);
         //check subscription and send message in channel
         List<ClientSubscription> clientSubscriptions = cache.get(event);
         if (clientSubscriptions.isEmpty()) {
             //check subscription in db
+            log.debug("Find subscription in DB for event: {}", event);
             List<ClientSubscription> all = subscribeDAO.getAll(event.getControllerId());
             if (all == null || all.isEmpty()) {
+                log.debug("Subscription does not find in DB");
                 return;
             }
             all.forEach(s -> cache.add(s));
