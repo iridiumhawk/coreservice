@@ -4,5 +4,5 @@ import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
 
 public interface Channel {
-    void fire(Event event, ClientSubscription subscription);
+    String fire(Event event, ClientSubscription subscription);
 }

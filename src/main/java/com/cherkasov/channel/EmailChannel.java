@@ -17,7 +17,7 @@ public class EmailChannel extends AbstractChannel implements Channel {
     }
 
     @Override
-    public void fire(final Event event, final ClientSubscription subscription) {
+    public String fire(final Event event, final ClientSubscription subscription) {
 
         String message = subscription.getMessage();
         if (message != null) {
@@ -28,6 +28,6 @@ public class EmailChannel extends AbstractChannel implements Channel {
 
         // TODO: 23.09.2018 send mail
         //use mail service
-
+        return "ok";
     }
 }
