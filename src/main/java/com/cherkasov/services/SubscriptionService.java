@@ -29,6 +29,11 @@ public class SubscriptionService implements Subscription {
     private String collection = "subscription"; // TODO: 28.09.2018 ??? WTF
 
     @Override
+    public List<ClientSubscription> viewSubscription() {
+        return subscribeDAO.getAll(collection);
+    }
+
+    @Override
     public void addSubscription(ClientSubscription entity) {
         //subscribeDAO.save
         subscribeDAO.insert(entity, collection);
