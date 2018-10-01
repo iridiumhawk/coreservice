@@ -42,8 +42,9 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
+        // TODO: 01.10.2018 make auto filling for Title
         return new ApiInfo(
-                "Smart Home - REST API, v.0.6.0",
+                "Smart Home - REST API, v.0.6.3",
                 "REST API interface and documentation.",
                 null,
                 null,
