@@ -75,7 +75,7 @@ public class SubscribeRestController {
 
 
     @ApiOperation(value = "Отписаться от всех событий на устройстве", notes = "Отписаться от всех событий на устройстве {device} на контроллере {id}.", produces = "application/json", consumes = "application/json")
-    @RequestMapping(value = "/disable/{device}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/disable/{id}/{device}", method = RequestMethod.DELETE)
     public ResponseEntity<?> disableDevice(
             @ApiParam(value = "{id} контроллера", required = true)
             @PathVariable("id") String controllerId,
@@ -90,7 +90,7 @@ public class SubscribeRestController {
     }
 
     @ApiOperation(value = "Отписаться от всех событий на контроллере", notes = "Отписаться от всех событий на контроллере {id}.", produces = "application/json", consumes = "application/json")
-    @RequestMapping(value = "/disableall", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/disableall/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> disableAll(
             @ApiParam(value = "{id} контроллера", required = true)
             @PathVariable("id") String controllerId) {

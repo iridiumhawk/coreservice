@@ -27,6 +27,7 @@ public class SubscriptionService implements Subscription {
 
     @Override
     public List<ClientSubscription> viewSubscription() {
+
         return subscribeDAO.getAll(collection);
     }
 
@@ -64,13 +65,14 @@ public class SubscriptionService implements Subscription {
 
     @Override
     public void fireEvent(Event event) {
+
         log.debug("Find subscription in cache for event : {}", event);
         //check subscription and send message in channel
         List<ClientSubscription> clientSubscriptions = cache.get(event);
         if (clientSubscriptions.isEmpty()) {
             //check subscription in db
             log.debug("Find subscription in DB for event: {}", event);
-            List<ClientSubscription> all = subscribeDAO.getAll(event.getControllerId());
+            List<ClientSubscription> all = subscribeDAO.getAllByField("controllerid", event.getControllerId(), collection);
             if (all == null || all.isEmpty()) {
                 log.debug("Subscription does not find in DB");
                 return;
