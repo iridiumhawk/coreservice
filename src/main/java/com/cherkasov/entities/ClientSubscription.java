@@ -30,6 +30,7 @@ public class ClientSubscription {
     @JsonProperty("endtime")
     private Long endTime;
     @JsonProperty("message")
+    @Setter
     private String message;
     @JsonProperty("notifications")
     private List<String> notifications; // TODO: 22.09.2018 take it from profile

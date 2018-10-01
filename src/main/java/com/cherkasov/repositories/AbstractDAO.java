@@ -72,8 +72,6 @@ public abstract class AbstractDAO<T> {
         return this.operations.findOne(query, getGenericType(), collection);
     }
 
-    // TODO: 27.05.2018 while searching dont take class name in consideration !!!  simple return result as this class
-
     public List<T> getAll(String collection) {
 
         Query query = new Query(Criteria.where("_class").is(getGenericType().getName()));
