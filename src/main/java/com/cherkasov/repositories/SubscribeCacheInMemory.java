@@ -1,5 +1,7 @@
 package com.cherkasov.repositories;
 
+import com.cherkasov.channel.Channel;
+import com.cherkasov.channel.ChannelFactory;
 import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
 import lombok.extern.slf4j.Slf4j;
@@ -18,14 +20,12 @@ public class SubscribeCacheInMemory implements SubscribeCache {
     //ControllerId, ClientSubscription
     private final Map<String, List<ClientSubscription>> cache = new ConcurrentHashMap<>();
 
-    public SubscribeCacheInMemory() {
-        //todo load subscription form DB on application start
-    }
 
+    // TODO: 22.09.2018 make more simple
     @Override
     public void add(ClientSubscription subscription) {
 
-        // TODO: 22.09.2018 make simple
+        subscription.setNotificationChannel(makeChannels(subscription));
         final List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
         if (clientSubscriptions != null) {
             clientSubscriptions.add(subscription);
@@ -38,9 +38,11 @@ public class SubscribeCacheInMemory implements SubscribeCache {
 //        cache.compute(subscription.getControllerId(), subscription);
     }
 
+    // TODO: 01.10.2018 change algorithm for update
     @Override
     public void update(ClientSubscription subscription) {
 
+        subscription.setNotificationChannel(makeChannels(subscription));
         final List<ClientSubscription> clientSubscriptions = cache.get(subscription.getControllerId());
         if (clientSubscriptions == null) {
             return;
@@ -82,5 +84,14 @@ public class SubscribeCacheInMemory implements SubscribeCache {
         }
         return clientSubscriptions.stream().filter(cl -> cl.getDeviceId().equalsIgnoreCase(event.getDeviceId()) && cl.getSensorId().equalsIgnoreCase(event.getSensorId())).collect(Collectors.toList());
         // TODO: 22.09.2018 checking values for alarm
+    }
+
+    private List<Channel> makeChannels(ClientSubscription entity) {
+
+        List<Channel> channels = new ArrayList<>();
+        for (String notification : entity.getNotifications()) {
+            channels.add(ChannelFactory.make(notification));
+        }
+        return channels;
     }
 }

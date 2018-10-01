@@ -26,7 +26,7 @@ public class SubscriptionService implements Subscription {
     @Autowired
     private NotificationService notificationService;
 
-    private String collection = "subscription"; // TODO: 28.09.2018 ??? WTF
+    private String collection = "subscription"; // TODO: 28.09.2018 ??? WTF, change name or Database
 
     @Override
     public List<ClientSubscription> viewSubscription() {
@@ -39,22 +39,22 @@ public class SubscriptionService implements Subscription {
         subscribeDAO.insert(entity, collection);
 
         //cache.add
-        entity.setNotificationChannel(makeChannels(entity));
         cache.add(entity);
     }
 
     @Override
     public void updateSubscription(ClientSubscription entity) {
 
-        subscribeDAO.update("controllerid", entity.getControllerId(), entity, collection); // TODO: 28.09.2018 ???
-        entity.setNotificationChannel(makeChannels(entity));
+        subscribeDAO.update("controllerid", entity.getControllerId(), entity, collection);
+
         cache.update(entity);
     }
 
     @Override
     public void removeSubscriptionDevice(String controllerId, String deviceId) {
 
-        subscribeDAO.deleteByField("deviceid", deviceId, collection); // TODO: 28.09.2018 ??? removes all devices
+        // TODO: 28.09.2018 ??? removes all devices
+        subscribeDAO.deleteByField("deviceid", deviceId, collection);
         cache.delete(controllerId, deviceId);
     }
 
@@ -69,15 +69,15 @@ public class SubscriptionService implements Subscription {
     public void fireEvent(Event event) {
         //check subscription and send message in channel
         List<ClientSubscription> clientSubscriptions = cache.get(event);
-        notificationService.send(event, clientSubscriptions);
-    }
-
-    private List<Channel> makeChannels(ClientSubscription entity) {
-
-        List<Channel> channels = new ArrayList<>();
-        for (String notification : entity.getNotifications()) {
-            channels.add(ChannelFactory.make(notification));
+        if (clientSubscriptions.isEmpty()) {
+            //check subscription in db
+            List<ClientSubscription> all = subscribeDAO.getAll(event.getControllerId());
+            if (all == null || all.isEmpty()) {
+                return;
+            }
+            all.forEach(s -> cache.add(s));
+            clientSubscriptions = cache.get(event);
         }
-        return channels;
+        notificationService.send(event, clientSubscriptions);
     }
 }
