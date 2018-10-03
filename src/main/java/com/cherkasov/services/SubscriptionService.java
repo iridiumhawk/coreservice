@@ -43,7 +43,7 @@ public class SubscriptionService implements Subscription {
     @Override
     public void updateSubscription(ClientSubscription entity) {
 
-        subscribeDAO.update("controllerid", entity.getControllerId(), entity, collection);
+        subscribeDAO.update("controllerId", entity.getControllerId(), entity, collection);
 
         cache.update(entity);
     }
@@ -52,14 +52,14 @@ public class SubscriptionService implements Subscription {
     public void removeSubscriptionDevice(String controllerId, String deviceId) {
 
         // TODO: 28.09.2018 ??? removes all devices
-        subscribeDAO.deleteByField("deviceid", deviceId, collection);
+        subscribeDAO.deleteByField("deviceId", deviceId, collection);
         cache.delete(controllerId, deviceId);
     }
 
     @Override
     public void removeAllSubscription(String controllerId) {
 
-        subscribeDAO.deleteByField("controllerid", controllerId, collection);
+        subscribeDAO.deleteByField("controllerId", controllerId, collection);
         cache.deleteAll(controllerId);
     }
 
@@ -72,7 +72,7 @@ public class SubscriptionService implements Subscription {
         if (clientSubscriptions.isEmpty()) {
             //check subscription in db
             log.debug("Find subscription in DB for event: {}", event);
-            List<ClientSubscription> all = subscribeDAO.getAllByField("controllerid", event.getControllerId(), collection);
+            List<ClientSubscription> all = subscribeDAO.getAllByField("controllerId", event.getControllerId(), collection);
             if (all == null || all.isEmpty()) {
                 log.debug("Subscription does not find in DB");
                 return;
