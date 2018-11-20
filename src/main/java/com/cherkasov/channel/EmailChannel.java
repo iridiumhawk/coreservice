@@ -2,14 +2,16 @@ package com.cherkasov.channel;
 
 import com.cherkasov.entities.ClientSubscription;
 import com.cherkasov.entities.Event;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
-import java.text.MessageFormat;
-
+@Slf4j
 public class EmailChannel extends AbstractChannel implements Channel {
 
-    private String server = "";
+    @Autowired
+    private JavaMailSender EMAIL_SENDER;
 
     public EmailChannel(Destination destination, Integer timeOut, Integer retrieveCount) {
 
@@ -26,8 +28,16 @@ public class EmailChannel extends AbstractChannel implements Channel {
             message = "Value=" + event.getValue();
         }
 
-        // TODO: 23.09.2018 send mail
-        //use mail service
+        sendSimpleMessage(destination.getEndPoint().trim(), "event", message);
         return "ok";
+    }
+
+    private void sendSimpleMessage(String to, String subject, String text) {
+        log.debug("Sending mail");
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+        EMAIL_SENDER.send(message);
     }
 }

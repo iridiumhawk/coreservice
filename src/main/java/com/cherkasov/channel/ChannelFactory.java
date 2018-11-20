@@ -1,7 +1,18 @@
 package com.cherkasov.channel;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.function.Function;
+
+@Configuration
 public class ChannelFactory {
-    public static Channel make(String channelDescription) {
+
+    @Bean
+    @Scope("prototype")
+    protected Channel make(String channelDescription) {
 
         Channel channel;
         Destination destination = null;
@@ -27,4 +38,10 @@ public class ChannelFactory {
 
         return channel;
     }
+
+    @Bean
+    public Function<String, Channel> beanFactory() {
+        return this::make;
+    }
+
 }
