@@ -29,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.cherkasov.utils.Helper.createHeaders;
 import static com.cherkasov.utils.Helper.getControllerName;
@@ -39,7 +40,7 @@ import static com.cherkasov.utils.Helper.getDeviceName;
 @RequestMapping("/api/v1/device/{id}")
 public class DeviceRestController {
 
-    private static final String DEVICE_PATTERN = "ZWayVDev";
+//    private static final String DEVICE_PATTERN = "ZWayVDev";
 
     @Autowired
     private DeviceDAO deviceDAO;
@@ -58,12 +59,27 @@ public class DeviceRestController {
         return deviceDAO.getAll(controllerId);
     }
 
+    @ApiOperation(value = "Получить отфильтрованный список всех устройств", notes = "Список всех существующих устройств на контроллере {id} отфильтрованный по {filter}", produces = "application/json")
+    @RequestMapping(value = "/get/all/filter/{filter}", method = RequestMethod.GET)
+    public List<Device> getAllDevicesFiltered(
+        @ApiParam(value = "{id} контроллера", required = true)
+        @PathVariable("id") String controllerId,
+        @ApiParam(value = "{filter} условие фильтра", required = true)
+        @PathVariable("filter") String filter
+    ) {
+
+        log.debug("ControllerId={}", controllerId);
+
+        List<Device> all = deviceDAO.getAll(controllerId);
+        return all.stream().filter(device -> device.getName().contains(filter)).collect(Collectors.toList());
+    }
+
     /**
      * Delete devices with NULL name
      * @param controllerId
      * @return
      */
-    @ApiOperation(value = "Удалить все пустые устройства", notes = "Удалить все устройства из базы {id} которых null", produces = "application/json")
+    @ApiOperation(value = "Удалить все пустые устройства", notes = "Удалить все устройства из базы {id} которых равен null", produces = "application/json")
     @RequestMapping(value = "/remove/all/null", method = RequestMethod.DELETE)
     public List<Device> deleteAllNullDevices(
             @ApiParam(value = "{id} контроллера", required = true)
@@ -196,7 +212,7 @@ public class DeviceRestController {
 //            device.setLastReceived();
 //            device.setLastSend();
 
-            if (device.getName() == null || device.getName().isEmpty() || !device.getName().contains(DEVICE_PATTERN)) {
+            if (device.getName() == null || device.getName().isEmpty() ) { //|| !device.getName().contains(DEVICE_PATTERN)
                 continue;
             }
 
