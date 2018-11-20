@@ -18,26 +18,26 @@ import java.util.List;
 @Document
 public class ClientSubscription {
     @JsonProperty("controllerid")
-    private String controllerId;
+    protected String controllerId;
     @JsonProperty("deviceid")
-    private String deviceId;
+    protected String deviceId;
     @JsonProperty("sensorid")
-    private String sensorId;
+    protected String sensorId;
     @JsonProperty("value")
-    private List<String> value; //ustavka
+    protected List<String> value; //ustavka
     @JsonProperty("starttime")
-    private Long startTime;
+    protected Long startTime;
     @JsonProperty("endtime")
-    private Long endTime;
+    protected Long endTime;
     @JsonProperty("message")
     @Setter
-    private String message;
+    protected String message;
     @JsonProperty("notifications")
-    private List<String> notifications; // TODO: 22.09.2018 take it from profile
+    protected List<String> notifications; // TODO: 22.09.2018 take it from profile
     @Transient
     @JsonIgnore
     @Setter
-    private List<Channel> notificationChannel;
+    protected List<Channel> notificationChannel;
 
     @Override
     public boolean equals(Object o) {
