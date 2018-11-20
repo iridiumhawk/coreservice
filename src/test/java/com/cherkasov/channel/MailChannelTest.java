@@ -10,17 +10,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.function.Function;
 
-import static org.junit.Assert.*;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SMSChannelTest {
+public class MailChannelTest {
     @Autowired
     private Function<String, Channel> beanFactory;
 
     @Test
     public void fire() {
-        Channel channel = beanFactory.apply("sms=+79199550151");
+        Channel channel = beanFactory.apply("email=hawk_san@mail.ru");
         channel.fire(getEvent(), getSubscription());
 //        Channel channel = ChannelFactory.make("sms=+79199550151");
     }
