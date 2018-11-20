@@ -25,6 +25,7 @@ public class SubscriptionService implements Subscription {
 
     private String collection = "subscription"; // TODO: 28.09.2018 ??? WTF, change name or Database
 
+
     @Override
     public List<ClientSubscription> viewSubscription() {
 
@@ -51,7 +52,7 @@ public class SubscriptionService implements Subscription {
     @Override
     public void removeSubscriptionDevice(String controllerId, String deviceId) {
 
-        // TODO: 28.09.2018 ??? removes all devices
+        // TODO: 28.09.2018 ??? removes all devices from all controllers
         subscribeDAO.deleteByField("deviceId", deviceId, collection);
         cache.delete(controllerId, deviceId);
     }
@@ -66,20 +67,27 @@ public class SubscriptionService implements Subscription {
     @Override
     public void fireEvent(Event event) {
 
-        log.debug("Find subscription in cache for event : {}", event);
+        log.debug("Searching subscription in cache for event : {}", event);
         //check subscription and send message in channel
         List<ClientSubscription> clientSubscriptions = cache.get(event);
         if (clientSubscriptions.isEmpty()) {
-            //check subscription in db
-            log.debug("Find subscription in DB for event: {}", event);
-            List<ClientSubscription> all = subscribeDAO.getAllByField("controllerId", event.getControllerId(), collection);
-            if (all == null || all.isEmpty()) {
-                log.debug("Subscription does not find in DB");
-                return;
-            }
-            all.forEach(s -> cache.add(s));
+            if (!getSubscriptionFromDb(event.getControllerId())) return; // TODO: 19.11.2018 remove checking
             clientSubscriptions = cache.get(event);
         }
         notificationService.send(event, clientSubscriptions);
+    }
+
+    private boolean getSubscriptionFromDb(String controllerId) {
+
+        //check subscription in db
+        log.debug("Searching subscription in DB for event: {}", controllerId);
+        List<ClientSubscription> all = subscribeDAO.getAllByField("controllerId", controllerId, collection);// TODO: 03.10.2018 store in individual collection
+        if (all == null || all.isEmpty()) {
+            log.debug("Subscription does not find in DB");
+//            cache.add(new EmptyClientSubscription(controllerId));
+            return false;
+        }
+        all.forEach(s -> cache.add(s));
+        return true;
     }
 }
