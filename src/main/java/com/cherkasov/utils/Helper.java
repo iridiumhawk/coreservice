@@ -51,10 +51,5 @@ public class Helper {
         return controllerDevice;
     }
 
-    @Deprecated
-    public RestOperations rest(RestTemplateBuilder restTemplateBuilder) {
-
-        return restTemplateBuilder.basicAuthorization(Configuration.clientLogin, Configuration.clientPassword).setConnectTimeout(5000).build();
-    }
 
 }
