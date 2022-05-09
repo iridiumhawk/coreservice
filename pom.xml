@@ -96,7 +96,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>24.0-jre</version>
+            <version>29.0-jre</version>
         </dependency>
 
         <!--need for resolve issue with "java.lang.NoClassDefFoundError: javax/xml/bind/JAXBException" on running from jar (java version 9?)-->
